@@ -10,24 +10,32 @@ public class UIManager : MonoBehaviour
     [Header("Menus")]
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject gameOverScreen;
-    [SerializeField] private GameObject levelCompleteScreen;
+    [SerializeField] private GameObject levelCompletionScreen;
 
     public void Initialize()
     {
         if (pauseMenu) pauseMenu.SetActive(false);
         if (gameOverScreen) gameOverScreen.SetActive(false);
-        if (levelCompleteScreen) levelCompleteScreen.SetActive(false);
+        if (levelCompletionScreen) levelCompletionScreen.SetActive(false);
     }
+
+    #region HUD Updates
 
     public void UpdateLivesDisplay(int lives)
     {
-        if (livesText) livesText.text = "Lives: " + lives;
+        if (livesText != null)
+            livesText.text = "Lives: " + lives;
     }
 
     public void UpdateCoinsDisplay(int coins)
     {
-        if (coinsText) coinsText.text = "Coins: " + coins;
+        if (coinsText != null)
+            coinsText.text = "Coins: " + coins;
     }
+
+    #endregion
+
+    #region Pause Menu
 
     public void ShowPauseMenu()
     {
@@ -39,13 +47,26 @@ public class UIManager : MonoBehaviour
         if (pauseMenu) pauseMenu.SetActive(false);
     }
 
+    #endregion
+
+    #region Game Over Screen
+
     public void ShowGameOverScreen()
     {
         if (gameOverScreen) gameOverScreen.SetActive(true);
     }
 
+    #endregion
+
+    #region Level Complete Screen
+
     public void ShowLevelCompleteScreen(int coinsCollected)
     {
-        if (levelCompleteScreen) levelCompleteScreen.SetActive(true);
+        if (levelCompletionScreen)
+        {
+            levelCompletionScreen.SetActive(true);
+        }
     }
+
+    #endregion
 }
