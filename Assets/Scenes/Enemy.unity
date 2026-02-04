@@ -955,6 +955,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 925627295504751606, guid: 25f1996e9ccfd2c41a4cd1e228f908cf, type: 3}
       insertIndex: -1
       addedObject: {fileID: 851070043}
+    - targetCorrespondingSourceObject: {fileID: 925627295504751606, guid: 25f1996e9ccfd2c41a4cd1e228f908cf, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 851070044}
   m_SourcePrefab: {fileID: 100100000, guid: 25f1996e9ccfd2c41a4cd1e228f908cf, type: 3}
 --- !u!1 &409978244
 GameObject:
@@ -1898,6 +1901,28 @@ EdgeCollider2D:
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0
   m_UseAdjacentEndPoint: 0
+--- !u!114 &851070044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 851070035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ebbffbf3f7fc224f943668b99a33361, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 3
+  currentHealth: 0
+  invincibilityTime: 1
+  spriteRenderer: {fileID: 851070045}
+  hideOnDeath: 1
+--- !u!212 &851070045 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 761890385323496715, guid: 25f1996e9ccfd2c41a4cd1e228f908cf, type: 3}
+  m_PrefabInstance: {fileID: 282817790}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &861939727
 GameObject:
   m_ObjectHideFlags: 0
@@ -5078,6 +5103,10 @@ PrefabInstance:
       objectReference: {fileID: 851070042}
     - target: {fileID: 7708960824249970885, guid: 5149d9fb2a0f905409a5cfab689032fd, type: 3}
       propertyPath: m_Name
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 7708960824249970885, guid: 5149d9fb2a0f905409a5cfab689032fd, type: 3}
+      propertyPath: m_TagString
       value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 8959698556304673799, guid: 5149d9fb2a0f905409a5cfab689032fd, type: 3}

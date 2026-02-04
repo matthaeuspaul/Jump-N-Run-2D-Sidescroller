@@ -4,12 +4,17 @@ using UnityEngine;
 public class EnemyFollow : MonoBehaviour
 {
     [Header("Target")]
-    [SerializeField] private Transform player; // Assign player in Inspector or auto-find
+    [SerializeField] private Transform player;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 3f;
-    [SerializeField] private float detectionRadius = 8f; // How far enemy can "see"
-    [SerializeField] private float stopDistance = 1.5f; // How close before stopping
+    [SerializeField] private float detectionRadius = 8f;
+    [SerializeField] private float stopDistance = 1.5f;
+
+    [Header("Knockback Settings")]
+    [SerializeField] private float knockbackForce = 8f;
+    [SerializeField] private float knockbackDuration = 0.3f;
+    private bool _isKnockedBack = false;
 
     [Header("Patrol (Optional)")]
     [SerializeField] private bool patrolWhenIdle = false;
@@ -39,6 +44,9 @@ public class EnemyFollow : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // Don't move if knocked back
+        if (_isKnockedBack) return;
+
         if (player == null) return;
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
@@ -64,6 +72,34 @@ public class EnemyFollow : MonoBehaviour
             // Idle (stop moving)
             _rb.linearVelocity = Vector2.zero;
         }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        // Enemy gets knocked back when hitting player
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            ApplyKnockback(collision.transform.position);
+        }
+    }
+
+    private void ApplyKnockback(Vector2 playerPosition)
+    {
+        // Calculate knockback direction (away from player)
+        Vector2 knockbackDirection = ((Vector2)transform.position - playerPosition).normalized;
+
+        // Apply knockback force
+        _rb.linearVelocity = new Vector2(knockbackDirection.x * knockbackForce, knockbackForce * 0.3f);
+
+        // Stop enemy AI temporarily
+        StartCoroutine(KnockbackCoroutine());
+    }
+
+    private System.Collections.IEnumerator KnockbackCoroutine()
+    {
+        _isKnockedBack = true;
+        yield return new WaitForSeconds(knockbackDuration);
+        _isKnockedBack = false;
     }
 
     private void FollowPlayer()
