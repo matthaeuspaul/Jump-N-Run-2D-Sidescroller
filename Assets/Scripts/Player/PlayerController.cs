@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(PlayerHealth))]
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
@@ -53,6 +54,30 @@ public class PlayerController : MonoBehaviour
             groundCheckObj.transform.SetParent(transform);
             groundCheckObj.transform.localPosition = new Vector3(0, -0.5f, 0);
             groundCheck = groundCheckObj.transform;
+        }
+    }
+
+    private void OnEnable()
+    {
+        // Subscribe to GameManager respawn event
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnPlayerRespawn += Respawn;
+            Debug.Log("[PlayerController] Subscribed to GameManager.OnPlayerRespawn");
+        }
+        else
+        {
+            Debug.LogWarning("[PlayerController] GameManager.Instance is null! Cannot subscribe to respawn event.");
+        }
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe from GameManager respawn event
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnPlayerRespawn -= Respawn;
+            Debug.Log("[PlayerController] Unsubscribed from GameManager.OnPlayerRespawn");
         }
     }
 
@@ -140,11 +165,19 @@ public class PlayerController : MonoBehaviour
         _coyoteTimeCounter = 0f;
         _jumpCooldownTimer = jumpCooldown;
 
+        // Play jump sound if AudioManager exists
+        if (GameManager.Instance != null && GameManager.Instance.Audio != null)
+        {
+            GameManager.Instance.Audio.PlaySFX("Jump");
+        }
+
         Debug.Log("Jumped! Cooldown started.");
     }
 
     public void Respawn(Vector3 position)
     {
+        Debug.Log($"[PlayerController] Respawning at {position}");
+
         transform.position = position;
         _rb.linearVelocity = Vector2.zero;
         _coyoteTimeCounter = 0f;
