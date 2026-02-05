@@ -29,6 +29,9 @@ TextureImporter:
   - first:
       213: -2331352242086191015
     second: Idle_8
+  - first:
+      213: -3914248031228685145
+    second: Idle_9
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -321,11 +324,33 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Idle_9
+      rect:
+        serializedVersion: 2
+        x: 144
+        y: 0
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a497d7772ccda9c0800000000000000
+      internalID: -3914248031228685145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 4d70baebbde883144a18dae123f67154
+    spriteID: 29674898651c7c24d878c40143de9840
     internalID: 0
     vertices: []
     indices: 
@@ -344,6 +369,7 @@ TextureImporter:
       Idle_6: 3278449094680734212
       Idle_7: 3384493420599841878
       Idle_8: -2331352242086191015
+      Idle_9: -3914248031228685145
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

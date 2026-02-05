@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Animator))]
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
@@ -17,17 +18,33 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float coyoteTime = 0.2f;
 
     [Header("Jump Cooldown")]
-    [SerializeField] private float jumpCooldown = 0.5f; // Time to wait between jumps
+    [SerializeField] private float jumpCooldown = 0.5f;
+
+    [Header("Animation")]
+    [SerializeField] private SpriteRenderer spriteRenderer;
 
     private Rigidbody2D _rb;
+    private Animator _animator;
     private bool _isGrounded;
     private Vector2 _moveInput;
     private float _coyoteTimeCounter;
     private float _jumpCooldownTimer;
 
+    // Animation parameter names
+    private static readonly int IsGrounded = Animator.StringToHash("isGrounded");
+    private static readonly int IsRunning = Animator.StringToHash("isRunning");
+    private static readonly int VelocityY = Animator.StringToHash("velocityY");
+
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _animator = GetComponent<Animator>();
+
+        // Auto-get SpriteRenderer if not assigned
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        }
 
         // Auto-create ground check if missing
         if (groundCheck == null)
@@ -56,6 +73,9 @@ public class PlayerController : MonoBehaviour
         {
             _jumpCooldownTimer -= Time.deltaTime;
         }
+
+        UpdateAnimations();
+        HandleSpriteFlip();
     }
 
     private void FixedUpdate()
@@ -73,6 +93,27 @@ public class PlayerController : MonoBehaviour
 
         // Movement
         _rb.linearVelocity = new Vector2(_moveInput.x * moveSpeed, _rb.linearVelocity.y);
+    }
+
+    private void UpdateAnimations()
+    {
+        // Update animator parameters
+        _animator.SetBool(IsGrounded, _isGrounded);
+        _animator.SetBool(IsRunning, Mathf.Abs(_moveInput.x) > 0.01f);
+        _animator.SetFloat(VelocityY, _rb.linearVelocity.y);
+    }
+
+    private void HandleSpriteFlip()
+    {
+        // Flip sprite based on movement direction
+        if (_moveInput.x > 0.01f)
+        {
+            spriteRenderer.flipX = false;
+        }
+        else if (_moveInput.x < -0.01f)
+        {
+            spriteRenderer.flipX = true;
+        }
     }
 
     public void OnMove(InputValue value)
@@ -97,7 +138,7 @@ public class PlayerController : MonoBehaviour
     {
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForce);
         _coyoteTimeCounter = 0f;
-        _jumpCooldownTimer = jumpCooldown; // Start cooldown
+        _jumpCooldownTimer = jumpCooldown;
 
         Debug.Log("Jumped! Cooldown started.");
     }
@@ -107,7 +148,7 @@ public class PlayerController : MonoBehaviour
         transform.position = position;
         _rb.linearVelocity = Vector2.zero;
         _coyoteTimeCounter = 0f;
-        _jumpCooldownTimer = 0f; // Reset cooldown on respawn
+        _jumpCooldownTimer = 0f;
     }
 
     private void OnDrawGizmos()
