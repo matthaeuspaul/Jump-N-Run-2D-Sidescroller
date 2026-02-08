@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using TMPro;
 
 public class UIManager : MonoBehaviour
@@ -13,26 +12,18 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject gameOverScreen;
     [SerializeField] private GameObject levelCompletionScreen;
 
-    [Header("Search Settings")]
-    [SerializeField] private bool autoFindUIElements = true;
+    [Header("Screen Transitions")]
+    [SerializeField] private ScreenFade screenFader;
 
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
+    public ScreenFade Fader => screenFader;
 
-    private void OnDisable()
+    private void Awake()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (autoFindUIElements)
+        // Auto-find ScreenFader if not assigned
+        if (screenFader == null)
         {
-            FindUIElements();
+            screenFader = GetComponentInChildren<ScreenFade>();
         }
-        Initialize();
     }
 
     public void Initialize()
@@ -42,41 +33,6 @@ public class UIManager : MonoBehaviour
         if (levelCompletionScreen) levelCompletionScreen.SetActive(false);
     }
 
-    private void FindUIElements()
-    {
-        // Find HUD elements
-        if (livesText == null)
-        {
-            GameObject livesObj = GameObject.Find("LivesText");
-            if (livesObj != null)
-                livesText = livesObj.GetComponent<TextMeshProUGUI>();
-        }
-
-        if (coinsText == null)
-        {
-            GameObject coinsObj = GameObject.Find("CoinsText");
-            if (coinsObj != null)
-                coinsText = coinsObj.GetComponent<TextMeshProUGUI>();
-        }
-
-        // Find menu panels
-        if (pauseMenu == null)
-            pauseMenu = GameObject.Find("PauseMenu");
-
-        if (gameOverScreen == null)
-            gameOverScreen = GameObject.Find("GameOverScreen");
-
-        if (levelCompletionScreen == null)
-            levelCompletionScreen = GameObject.Find("LevelCompletionScreen");
-
-        Debug.Log($"[UIManager] Found UI elements in scene: {SceneManager.GetActiveScene().name}");
-        Debug.Log($"LivesText: {(livesText != null ? "Found" : "Missing")}");
-        Debug.Log($"CoinsText: {(coinsText != null ? "Found" : "Missing")}");
-        Debug.Log($"PauseMenu: {(pauseMenu != null ? "Found" : "Missing")}");
-        Debug.Log($"GameOverScreen: {(gameOverScreen != null ? "Found" : "Missing")}");
-        Debug.Log($"LevelCompletionScreen: {(levelCompletionScreen != null ? "Found" : "Missing")}");
-    }
-
     #region HUD Updates
 
     public void UpdateLivesDisplay(int lives)
@@ -84,7 +40,7 @@ public class UIManager : MonoBehaviour
         if (livesText != null)
             livesText.text = "Lives: " + lives;
         else
-            Debug.LogWarning("[UIManager] LivesText is null!");
+            Debug.LogWarning("[UIManager] LivesText is not assigned!");
     }
 
     public void UpdateCoinsDisplay(int coins)
@@ -92,7 +48,7 @@ public class UIManager : MonoBehaviour
         if (coinsText != null)
             coinsText.text = "Coins: " + coins;
         else
-            Debug.LogWarning("[UIManager] CoinsText is null!");
+            Debug.LogWarning("[UIManager] CoinsText is not assigned!");
     }
 
     #endregion
@@ -107,7 +63,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[UIManager] PauseMenu is null!");
+            Debug.LogWarning("[UIManager] PauseMenu is not assigned!");
         }
     }
 
@@ -131,7 +87,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[UIManager] GameOverScreen is null!");
+            Debug.LogWarning("[UIManager] GameOverScreen is not assigned!");
         }
     }
 
@@ -149,24 +105,22 @@ public class UIManager : MonoBehaviour
             LevelCompleteScreenController controller = levelCompletionScreen.GetComponent<LevelCompleteScreenController>();
             if (controller != null)
             {
-                // You can add total coins logic here if needed
                 controller.Setup(coinsCollected, coinsCollected);
             }
         }
         else
         {
-            Debug.LogWarning("[UIManager] LevelCompletionScreen is null!");
+            Debug.LogWarning("[UIManager] LevelCompletionScreen is not assigned!");
+        }
+    }
+
+    public void HideLevelCompleteScreen()
+    {
+        if (levelCompletionScreen)
+        {
+            levelCompletionScreen.SetActive(false);
         }
     }
 
     #endregion
-
-    /// <summary>
-    /// Manually refresh UI element references (useful if UI is spawned dynamically)
-    /// </summary>
-    public void RefreshUIReferences()
-    {
-        FindUIElements();
-        Initialize();
-    }
 }

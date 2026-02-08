@@ -14,6 +14,9 @@ public class LevelManager : MonoBehaviour
         {
             GameManager.Instance.Checkpoints.SetInitialSpawn(playerSpawnPoint.position);
             SpawnPlayer();
+
+            // Fade in after player is positioned
+            StartCoroutine(FadeInAfterSpawn());
         }
     }
 
@@ -26,23 +29,21 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    private System.Collections.IEnumerator FadeInAfterSpawn()
+    {
+        // Kurze Pause damit Player garantiert positioniert ist
+        yield return null;
+
+        // Fade from black to clear
+        if (GameManager.Instance != null && GameManager.Instance.UI != null && GameManager.Instance.UI.Fader != null)
+        {
+            yield return GameManager.Instance.UI.Fader.FadeIn(0.5f);
+        }
+    }
+
     public void LevelComplete()
     {
         GameManager.Instance.LevelComplete();
-        StartCoroutine(LoadNextLevel());
-    }
-
-    private IEnumerator LoadNextLevel()
-    {
-        yield return new WaitForSeconds(2f);
-
-        if (!string.IsNullOrEmpty(nextLevelScene))
-        {
-            SceneManager.LoadScene(nextLevelScene);
-        }
-        else
-        {
-            SceneManager.LoadScene("MainMenu");
-        }
+        GameManager.Instance.LoadNextLevel(nextLevelScene);
     }
 }

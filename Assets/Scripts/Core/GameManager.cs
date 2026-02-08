@@ -132,6 +132,43 @@ public class GameManager : MonoBehaviour
         _uiManager?.ShowLevelCompleteScreen(_coinsCollected);
     }
 
+    public void LoadNextLevel(string nextLevelScene)
+    {
+        StartCoroutine(LoadNextLevelCoroutine(nextLevelScene));
+    }
+
+    private System.Collections.IEnumerator LoadNextLevelCoroutine(string nextLevelScene)
+    {
+        // Fade to black
+        if (_uiManager != null && _uiManager.Fader != null)
+        {
+            yield return _uiManager.Fader.FadeOut(0.5f);
+        }
+        else
+        {
+            // Fallback: wait without fade
+            yield return new WaitForSecondsRealtime(0.5f);
+        }
+
+        // Verstecke Level Completion Screen
+        _uiManager?.HideLevelCompleteScreen();
+
+        // Kurze Pause auf schwarzem Bildschirm
+        yield return new WaitForSecondsRealtime(0.3f);
+
+        // Lade nächstes Level oder Main Menu
+        if (!string.IsNullOrEmpty(nextLevelScene))
+        {
+            SceneManager.LoadScene(nextLevelScene);
+        }
+        else
+        {
+            SceneManager.LoadScene("MainMenu");
+        }
+
+        // Note: Fade-In passiert im LevelManager nach dem Player-Spawn
+    }
+
     public void ReturnToMainMenu()
     {
         Time.timeScale = 1f;

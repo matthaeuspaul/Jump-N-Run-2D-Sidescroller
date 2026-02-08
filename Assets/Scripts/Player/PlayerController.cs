@@ -57,9 +57,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnEnable()
+    private void Start()
     {
         // Subscribe to GameManager respawn event
+        // Start() wird nach allen Awake() Aufrufen ausgeführt, daher ist GameManager.Instance garantiert gesetzt
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnPlayerRespawn += Respawn;
@@ -67,7 +68,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[PlayerController] GameManager.Instance is null! Cannot subscribe to respawn event.");
+            Debug.LogError("[PlayerController] GameManager.Instance is null! This should not happen!");
         }
     }
 
