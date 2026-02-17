@@ -11,147 +11,96 @@ public class EnemyFollow : MonoBehaviour
     [SerializeField] private float detectionRadius = 8f;
     [SerializeField] private float stopDistance = 1.5f;
 
-    [Header("Knockback Settings")]
-    [SerializeField] private float knockbackForce = 8f;
-    [SerializeField] private float knockbackDuration = 0.3f;
-    private bool _isKnockedBack = false;
+    [Header("Health")]
+    [SerializeField] private int maxHealth = 2;
+    [SerializeField] private float stompBounceForce = 10f;
 
-    [Header("Patrol (Optional)")]
-    [SerializeField] private bool patrolWhenIdle = false;
-    [SerializeField] private float patrolSpeed = 1.5f;
-    [SerializeField] private float patrolDistance = 3f;
+    [Header("Health Bar")]
+    [SerializeField] private EnemyHealthBar healthBarPrefab;
 
+
+    private int _currentHealth;
     private Rigidbody2D _rb;
-    private Vector2 _startPosition;
-    private float _patrolDirection = 1f;
+    private EnemyHealthBar _healthBarInstance;
 
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
         _rb.freezeRotation = true;
-        _startPosition = transform.position;
 
-        // Auto-find player if not assigned
         if (player == null)
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
             if (playerObj != null)
-            {
                 player = playerObj.transform;
-            }
+        }
+
+        _currentHealth = maxHealth;
+
+        if (healthBarPrefab != null)
+        {
+            Canvas canvas = FindObjectOfType<Canvas>();
+            _healthBarInstance = Instantiate(healthBarPrefab, canvas.transform);
+
+            _healthBarInstance.Initialize(transform);
+            _healthBarInstance.SetHealth(_currentHealth, maxHealth);
         }
     }
 
     private void FixedUpdate()
     {
-        // Don't move if knocked back
-        if (_isKnockedBack) return;
-
         if (player == null) return;
 
-        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+        float distance = Vector2.Distance(transform.position, player.position);
 
-        // Check if player is within detection radius
-        if (distanceToPlayer <= detectionRadius && distanceToPlayer > stopDistance)
+        if (distance <= detectionRadius && distance > stopDistance)
         {
-            // Follow player
-            FollowPlayer();
-        }
-        else if (distanceToPlayer <= stopDistance)
-        {
-            // Stop moving (too close)
-            _rb.linearVelocity = Vector2.zero;
-        }
-        else if (patrolWhenIdle)
-        {
-            // Patrol when player is out of range
-            Patrol();
+            Vector2 direction = (player.position - transform.position).normalized;
+            _rb.linearVelocity = new Vector2(direction.x * moveSpeed, _rb.linearVelocity.y);
+
+            if (direction.x > 0)
+                transform.localScale = new Vector3(1, 1, 1);
+            else if (direction.x < 0)
+                transform.localScale = new Vector3(-1, 1, 1);
         }
         else
         {
-            // Idle (stop moving)
-            _rb.linearVelocity = Vector2.zero;
+            _rb.linearVelocity = new Vector2(0, _rb.linearVelocity.y);
         }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Enemy gets knocked back when hitting player
-        if (collision.gameObject.CompareTag("Player"))
+        if (!collision.gameObject.CompareTag("Player")) return;
+
+        Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
+
+        bool isFalling = playerRb.linearVelocity.y < 0;
+        bool isAbove = collision.transform.position.y > transform.position.y + 0.3f;
+
+        if (isFalling && isAbove)
         {
-            ApplyKnockback(collision.transform.position);
+            TakeDamage(1);
+            playerRb.linearVelocity = new Vector2(playerRb.linearVelocity.x, stompBounceForce);
         }
     }
 
-    private void ApplyKnockback(Vector2 playerPosition)
+    private void TakeDamage(int amount)
     {
-        // Calculate knockback direction (away from player)
-        Vector2 knockbackDirection = ((Vector2)transform.position - playerPosition).normalized;
+        _currentHealth -= amount;
 
-        // Apply knockback force
-        _rb.linearVelocity = new Vector2(knockbackDirection.x * knockbackForce, knockbackForce * 0.3f);
+        if (_healthBarInstance != null)
+            _healthBarInstance.SetHealth(_currentHealth, maxHealth);
 
-        // Stop enemy AI temporarily
-        StartCoroutine(KnockbackCoroutine());
+        if (_currentHealth <= 0)
+            Die();
     }
 
-    private System.Collections.IEnumerator KnockbackCoroutine()
+    private void Die()
     {
-        _isKnockedBack = true;
-        yield return new WaitForSeconds(knockbackDuration);
-        _isKnockedBack = false;
-    }
+        if (_healthBarInstance != null)
+            Destroy(_healthBarInstance.gameObject);
 
-    private void FollowPlayer()
-    {
-        // Calculate direction to player
-        Vector2 direction = (player.position - transform.position).normalized;
-
-        // Move toward player
-        _rb.linearVelocity = new Vector2(direction.x * moveSpeed, _rb.linearVelocity.y);
-
-        // Optional: Flip sprite to face player
-        if (direction.x > 0)
-        {
-            transform.localScale = new Vector3(1, 1, 1);
-        }
-        else if (direction.x < 0)
-        {
-            transform.localScale = new Vector3(-1, 1, 1);
-        }
-    }
-
-    private void Patrol()
-    {
-        // Simple left-right patrol
-        _rb.linearVelocity = new Vector2(_patrolDirection * patrolSpeed, _rb.linearVelocity.y);
-
-        // Check if reached patrol limit
-        float distanceFromStart = transform.position.x - _startPosition.x;
-        if (Mathf.Abs(distanceFromStart) >= patrolDistance)
-        {
-            _patrolDirection *= -1; // Reverse direction
-            transform.localScale = new Vector3(-transform.localScale.x, 1, 1); // Flip sprite
-        }
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        // Draw detection radius
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
-
-        // Draw stop distance
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, stopDistance);
-
-        // Draw patrol range if enabled
-        if (patrolWhenIdle)
-        {
-            Gizmos.color = Color.blue;
-            Vector3 startPos = Application.isPlaying ? _startPosition : transform.position;
-            Gizmos.DrawLine(startPos + Vector3.left * patrolDistance,
-                           startPos + Vector3.right * patrolDistance);
-        }
+        Destroy(gameObject);
     }
 }
