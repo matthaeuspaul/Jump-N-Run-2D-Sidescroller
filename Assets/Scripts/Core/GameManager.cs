@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
@@ -119,12 +119,31 @@ public class GameManager : MonoBehaviour
 
     public void RestartGame()
     {
+        StartCoroutine(RestartGameCoroutine());
+    }
+
+    private System.Collections.IEnumerator RestartGameCoroutine()
+    {
+        // Fade to black before loading
+        if (_uiManager != null && _uiManager.Fader != null)
+        {
+            yield return _uiManager.Fader.FadeOut(0.5f);
+        }
+        else
+        {
+            yield return new WaitForSecondsRealtime(0.5f);
+        }
+
+        _uiManager?.HideGameOverScreen();
+
         Time.timeScale = 1f;
         _currentLives = 3;
         _coinsCollected = 0;
         _checkpointManager?.ResetCheckpoints();
 
         SceneManager.LoadScene("Level_01");
+
+        // Note: Fade-In passiert im LevelManager nach dem Player-Spawn
     }
 
     public void LevelComplete()
@@ -156,7 +175,7 @@ public class GameManager : MonoBehaviour
         // Kurze Pause auf schwarzem Bildschirm
         yield return new WaitForSecondsRealtime(0.3f);
 
-        // Lade nächstes Level oder Main Menu
+        // Lade nï¿½chstes Level oder Main Menu
         if (!string.IsNullOrEmpty(nextLevelScene))
         {
             SceneManager.LoadScene(nextLevelScene);

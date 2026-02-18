@@ -91,6 +91,14 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void HideGameOverScreen()
+    {
+        if (gameOverScreen)
+        {
+            gameOverScreen.SetActive(false);
+        }
+    }
+
     #endregion
 
     #region Level Complete Screen
