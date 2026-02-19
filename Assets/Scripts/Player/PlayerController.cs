@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -26,10 +26,14 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody2D _rb;
     private Animator _animator;
+    private SwingController _swingController; // NEU
     private bool _isGrounded;
     private Vector2 _moveInput;
     private float _coyoteTimeCounter;
     private float _jumpCooldownTimer;
+
+    // NEU: MoveInput als Property damit SwingController es lesen kann
+    public Vector2 MoveInput => _moveInput;
 
     // Animation parameter names
     private static readonly int IsGrounded = Animator.StringToHash("isGrounded");
@@ -40,6 +44,7 @@ public class PlayerController : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
+        _swingController = GetComponent<SwingController>(); // NEU
 
         // Auto-get SpriteRenderer if not assigned
         if (spriteRenderer == null)
@@ -59,8 +64,6 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        // Subscribe to GameManager respawn event
-        // Start() wird nach allen Awake() Aufrufen ausgef�hrt, daher ist GameManager.Instance garantiert gesetzt
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnPlayerRespawn += Respawn;
@@ -74,7 +77,6 @@ public class PlayerController : MonoBehaviour
 
     private void OnDisable()
     {
-        // Unsubscribe from GameManager respawn event
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnPlayerRespawn -= Respawn;
@@ -106,7 +108,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // Ground Check - check multiple points for better detection
+        // Ground Check
         Vector2 leftPoint = new Vector2(groundCheck.position.x - 0.2f, groundCheck.position.y);
         Vector2 centerPoint = groundCheck.position;
         Vector2 rightPoint = new Vector2(groundCheck.position.x + 0.2f, groundCheck.position.y);
@@ -117,13 +119,16 @@ public class PlayerController : MonoBehaviour
 
         _isGrounded = leftGrounded || centerGrounded || rightGrounded;
 
-        // Movement
-        _rb.linearVelocity = new Vector2(_moveInput.x * moveSpeed, _rb.linearVelocity.y);
+        // NEU: Normales Movement nur wenn NICHT am Schwingen
+        // Sonst kämpft die Velocity gegen den DistanceJoint
+        if (_swingController == null || !_swingController.IsSwinging)
+        {
+            _rb.linearVelocity = new Vector2(_moveInput.x * moveSpeed, _rb.linearVelocity.y);
+        }
     }
 
     private void UpdateAnimations()
     {
-        // Update animator parameters
         _animator.SetBool(IsGrounded, _isGrounded);
         _animator.SetBool(IsRunning, Mathf.Abs(_moveInput.x) > 0.01f);
         _animator.SetFloat(VelocityY, _rb.linearVelocity.y);
@@ -131,7 +136,6 @@ public class PlayerController : MonoBehaviour
 
     private void HandleSpriteFlip()
     {
-        // Flip sprite based on movement direction
         if (_moveInput.x > 0.01f)
         {
             spriteRenderer.flipX = false;
@@ -149,12 +153,28 @@ public class PlayerController : MonoBehaviour
 
     public void OnJump(InputValue value)
     {
-        // Check if can jump: must have coyote time AND cooldown must be finished
-        if (value.isPressed && _coyoteTimeCounter > 0f && _jumpCooldownTimer <= 0f)
+        if (!value.isPressed) return;
+
+        // Schwingt gerade → loslassen
+        if (_swingController != null && _swingController.IsSwinging)
+        {
+            _swingController.DetachFromChain();
+            return;
+        }
+
+        // In Reichweite einer Kette → greifen
+        if (_swingController != null && _swingController.IsNearChain)
+        {
+            _swingController.AttachToNearbyChain();
+            return;
+        }
+
+        // Normal springen
+        if (_coyoteTimeCounter > 0f && _jumpCooldownTimer <= 0f)
         {
             Jump();
         }
-        else if (value.isPressed && _jumpCooldownTimer > 0f)
+        else if (_jumpCooldownTimer > 0f)
         {
             Debug.Log($"Jump on cooldown! Wait {_jumpCooldownTimer:F1}s");
         }
@@ -166,7 +186,6 @@ public class PlayerController : MonoBehaviour
         _coyoteTimeCounter = 0f;
         _jumpCooldownTimer = jumpCooldown;
 
-        // Play jump sound if AudioManager exists
         if (GameManager.Instance != null && GameManager.Instance.Audio != null)
         {
             GameManager.Instance.Audio.PlaySFX("Jump");
@@ -183,13 +202,18 @@ public class PlayerController : MonoBehaviour
         _rb.linearVelocity = Vector2.zero;
         _coyoteTimeCounter = 0f;
         _jumpCooldownTimer = 0f;
+
+        // NEU: Beim Respawn von Kette lösen falls nötig
+        if (_swingController != null && _swingController.IsSwinging)
+        {
+            _swingController.DetachFromChain();
+        }
     }
 
     private void OnDrawGizmos()
     {
         if (groundCheck != null)
         {
-            // Draw 3 check points
             Vector3 leftPoint = groundCheck.position + Vector3.left * 0.2f;
             Vector3 centerPoint = groundCheck.position;
             Vector3 rightPoint = groundCheck.position + Vector3.right * 0.2f;
@@ -199,7 +223,6 @@ public class PlayerController : MonoBehaviour
             Gizmos.DrawWireSphere(centerPoint, groundCheckRadius);
             Gizmos.DrawWireSphere(rightPoint, groundCheckRadius);
 
-            // Draw line to ground check
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(transform.position, groundCheck.position);
         }
