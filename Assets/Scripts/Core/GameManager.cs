@@ -141,6 +141,10 @@ public class GameManager : MonoBehaviour
         _coinsCollected = 0;
         _checkpointManager?.ResetCheckpoints();
 
+        // ✅ FIX: HUD sofort nach Reset aktualisieren
+        _uiManager?.UpdateLivesDisplay(_currentLives);
+        _uiManager?.UpdateCoinsDisplay(_coinsCollected);
+
         SceneManager.LoadScene("Level_01");
 
         // Note: Fade-In passiert im LevelManager nach dem Player-Spawn
@@ -165,17 +169,20 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            // Fallback: wait without fade
             yield return new WaitForSecondsRealtime(0.5f);
         }
 
         // Verstecke Level Completion Screen
         _uiManager?.HideLevelCompleteScreen();
 
+        // ✅ FIX: Coins für neues Level zurücksetzen und HUD aktualisieren
+        _coinsCollected = 0;
+        _uiManager?.UpdateCoinsDisplay(_coinsCollected);
+
         // Kurze Pause auf schwarzem Bildschirm
         yield return new WaitForSecondsRealtime(0.3f);
 
-        // Lade n�chstes Level oder Main Menu
+        // Lade nächstes Level oder Main Menu
         if (!string.IsNullOrEmpty(nextLevelScene))
         {
             SceneManager.LoadScene(nextLevelScene);
