@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 5019537446081164856}
   - component: {fileID: 1730478904162474136}
   - component: {fileID: 2236887293786146029}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -281,6 +281,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   swingForce: 5
   releaseUpwardBoost: 2
+  climbSpeed: 1.5
+  minRopeLength: 0.3
 --- !u!1 &7010253632763468464
 GameObject:
   m_ObjectHideFlags: 0
@@ -290,7 +292,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5117022763747546407}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}

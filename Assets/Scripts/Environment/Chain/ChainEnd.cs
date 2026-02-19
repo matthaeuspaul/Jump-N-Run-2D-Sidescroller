@@ -5,7 +5,6 @@
 [RequireComponent(typeof(Rigidbody2D))]
 public class ChainEnd : MonoBehaviour
 {
-    // Der SwingController des Spielers der gerade in Reichweite ist
     private SwingController _playerInRange;
 
     // Input wird komplett über PlayerController.OnJump gehandelt

@@ -1,18 +1,18 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 // Dieses Script sitzt auf dem Player GameObject.
-// Es verwaltet den DistanceJoint2D während des Schwingens.
+// Es verwaltet den DistanceJoint2D wÃ¤hrend des Schwingens.
 [RequireComponent(typeof(Rigidbody2D))]
 public class SwingController : MonoBehaviour
 {
     [Header("Swing Settings")]
-    [SerializeField] private float swingForce = 5f;      // Kraft mit der der Spieler pumpen kann
-    [SerializeField] private float releaseUpwardBoost = 2f; // Kleiner Upward-Boost beim Loslassen
+    [SerializeField] private float swingForce = 5f;
+    [SerializeField] private float releaseUpwardBoost = 2f;
 
     private Rigidbody2D _rb;
     private DistanceJoint2D _joint;
     private PlayerController _playerController;
-    private ChainEnd _nearbyChain; // Referenz auf den ChainEnd in Reichweite
+    private ChainEnd _nearbyChain;
 
     public bool IsSwinging { get; private set; } = false;
     public bool IsNearChain { get; private set; } = false;
@@ -38,8 +38,7 @@ public class SwingController : MonoBehaviour
     private void Update()
     {
         if (!IsSwinging) return;
-
-        // Input wird komplett über PlayerController.OnJump gehandelt
+        // Input wird komplett Ã¼ber PlayerController.OnJump gehandelt
     }
 
     private void FixedUpdate()
@@ -47,7 +46,6 @@ public class SwingController : MonoBehaviour
         if (!IsSwinging) return;
 
         // Horizontale Kraft zum Schwingen aufbauen
-        // (Input kommt vom PlayerController via MoveInput Property)
         float horizontalInput = _playerController.MoveInput.x;
         if (Mathf.Abs(horizontalInput) > 0.01f)
         {
@@ -61,11 +59,10 @@ public class SwingController : MonoBehaviour
 
         IsSwinging = true;
 
-        // DistanceJoint2D dynamisch erstellen
         _joint = gameObject.AddComponent<DistanceJoint2D>();
         _joint.connectedBody = chainEnd.GetComponent<Rigidbody2D>();
-        _joint.autoConfigureDistance = true;   // Distanz automatisch setzen
-        _joint.maxDistanceOnly = false;         // Feste Länge, kein Gummiband
+        _joint.autoConfigureDistance = true;
+        _joint.maxDistanceOnly = false;
         _joint.enableCollision = false;
 
         Debug.Log("[SwingController] Attached to chain!");
@@ -77,10 +74,8 @@ public class SwingController : MonoBehaviour
 
         IsSwinging = false;
 
-        // Kleinen Upward-Boost geben damit es sich besser anfühlt
         _rb.AddForce(Vector2.up * releaseUpwardBoost, ForceMode2D.Impulse);
 
-        // Joint entfernen
         if (_joint != null)
         {
             Destroy(_joint);

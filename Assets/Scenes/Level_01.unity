@@ -1392,6 +1392,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!50 &1879608119 stripped
+Rigidbody2D:
+  m_CorrespondingSourceObject: {fileID: 3543561049243978096, guid: 62280dd3ca1a89847b874818bde59b17, type: 3}
+  m_PrefabInstance: {fileID: 4023462577549073919}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1983411831
 GameObject:
   m_ObjectHideFlags: 0
@@ -2288,6 +2293,38 @@ PrefabInstance:
     - target: {fileID: 2188756093795980055, guid: 62280dd3ca1a89847b874818bde59b17, type: 3}
       propertyPath: m_Name
       value: Chain
+      objectReference: {fileID: 0}
+    - target: {fileID: 2638573798442330799, guid: 62280dd3ca1a89847b874818bde59b17, type: 3}
+      propertyPath: m_Size.x
+      value: 0.6763234
+      objectReference: {fileID: 0}
+    - target: {fileID: 2638573798442330799, guid: 62280dd3ca1a89847b874818bde59b17, type: 3}
+      propertyPath: m_Size.y
+      value: 0.47245592
+      objectReference: {fileID: 0}
+    - target: {fileID: 2638573798442330799, guid: 62280dd3ca1a89847b874818bde59b17, type: 3}
+      propertyPath: m_Offset.x
+      value: 0.0044739246
+      objectReference: {fileID: 0}
+    - target: {fileID: 2638573798442330799, guid: 62280dd3ca1a89847b874818bde59b17, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.19023731
+      objectReference: {fileID: 0}
+    - target: {fileID: 2913956492553503951, guid: 62280dd3ca1a89847b874818bde59b17, type: 3}
+      propertyPath: chainAnchor
+      value: 
+      objectReference: {fileID: 1879608119}
+    - target: {fileID: 5198908992470042595, guid: 62280dd3ca1a89847b874818bde59b17, type: 3}
+      propertyPath: m_Size.x
+      value: 0.59639406
+      objectReference: {fileID: 0}
+    - target: {fileID: 5198908992470042595, guid: 62280dd3ca1a89847b874818bde59b17, type: 3}
+      propertyPath: m_Offset.x
+      value: 0.003623724
+      objectReference: {fileID: 0}
+    - target: {fileID: 9129178281567057301, guid: 62280dd3ca1a89847b874818bde59b17, type: 3}
+      propertyPath: m_Mass
+      value: 0.3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
