@@ -1,13 +1,20 @@
 using UnityEngine;
+using System.Collections;
 
 public class PlayerHealth : MonoBehaviour
 {
+    [Header("Blink")]
+    [SerializeField] private float blinkDuration = 2f;
+    [SerializeField] private float blinkInterval = 0.1f;
+
     private AudioManager _audio;
     private PlayerController _controller;
+    private SpriteRenderer _spriteRenderer;
 
     private void Awake()
     {
         _controller = GetComponent<PlayerController>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void Start()
@@ -15,11 +22,18 @@ public class PlayerHealth : MonoBehaviour
         if (GameManager.Instance != null)
         {
             _audio = GameManager.Instance.Audio;
+            GameManager.Instance.OnPlayerRespawn += OnRespawn;
         }
         else
         {
             Debug.LogWarning("[PlayerHealth] GameManager.Instance is null at Start!");
         }
+    }
+
+    private void OnDisable()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnPlayerRespawn -= OnRespawn;
     }
 
     /// <summary>
@@ -29,38 +43,44 @@ public class PlayerHealth : MonoBehaviour
     {
         Debug.Log("[PlayerHealth] Player took fatal damage!");
 
-        // Disable player input temporarily to prevent movement during death
         if (_controller != null)
-        {
             _controller.enabled = false;
-        }
 
-        // Play death sound
         if (_audio != null)
-        {
             _audio.PlaySFX("PlayerDeath");
-        }
 
-        // Notify GameManager
         if (GameManager.Instance != null)
-        {
             GameManager.Instance.PlayerDied();
-        }
         else
-        {
             Debug.LogError("[PlayerHealth] GameManager.Instance is null! Cannot notify death.");
-        }
 
-        // Re-enable controller after a short delay (will be disabled again on respawn if needed)
         Invoke(nameof(ReEnableController), 0.1f);
     }
 
     private void ReEnableController()
     {
         if (_controller != null)
-        {
             _controller.enabled = true;
+    }
+
+    private void OnRespawn(Vector3 position)
+    {
+        StopAllCoroutines();
+        StartCoroutine(BlinkCoroutine());
+    }
+
+    private IEnumerator BlinkCoroutine()
+    {
+        float timer = 0f;
+
+        while (timer < blinkDuration)
+        {
+            _spriteRenderer.enabled = !_spriteRenderer.enabled;
+            yield return new WaitForSeconds(blinkInterval);
+            timer += blinkInterval;
         }
+
+        _spriteRenderer.enabled = true;
     }
 
     /// <summary>
@@ -68,8 +88,6 @@ public class PlayerHealth : MonoBehaviour
     /// </summary>
     public void TakeDamage(int amount)
     {
-        // For now, any damage is instant death
-        // Later you can add: currentHealth -= amount; if (currentHealth <= 0) Die();
         TakeDamage();
     }
 }
