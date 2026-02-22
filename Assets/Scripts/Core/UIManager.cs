@@ -1,11 +1,19 @@
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class UIManager : MonoBehaviour
 {
-    [Header("HUD Elements")]
-    [SerializeField] private TextMeshProUGUI livesText;
+    [Header("Hearts UI")]
+    [SerializeField] private GameObject heartsContainer;
+    [SerializeField] private GameObject heartPrefab;
+    [SerializeField] private Sprite fullHeartSprite;
+    [SerializeField] private Sprite emptyHeartSprite;
+    [SerializeField] private int maxLives = 3;
+
+    [Header("Coins UI")]
     [SerializeField] private TextMeshProUGUI coinsText;
+    // Das Coin-Sprite-Image ist fix im Canvas, nur der Text ändert sich
 
     [Header("Menus")]
     [SerializeField] private GameObject pauseMenu;
@@ -17,13 +25,12 @@ public class UIManager : MonoBehaviour
 
     public ScreenFade Fader => screenFader;
 
+    private Image[] _heartImages;
+
     private void Awake()
     {
-        // Auto-find ScreenFader if not assigned
         if (screenFader == null)
-        {
             screenFader = GetComponentInChildren<ScreenFade>();
-        }
     }
 
     public void Initialize()
@@ -31,22 +38,52 @@ public class UIManager : MonoBehaviour
         if (pauseMenu) pauseMenu.SetActive(false);
         if (gameOverScreen) gameOverScreen.SetActive(false);
         if (levelCompletionScreen) levelCompletionScreen.SetActive(false);
+
+        SpawnHearts();
+    }
+
+    private void SpawnHearts()
+    {
+        if (heartsContainer == null || heartPrefab == null)
+        {
+            Debug.LogWarning("[UIManager] HeartsContainer or HeartPrefab not assigned!");
+            return;
+        }
+
+        // Alte Herzen löschen falls vorhanden
+        foreach (Transform child in heartsContainer.transform)
+            Destroy(child.gameObject);
+
+        _heartImages = new Image[maxLives];
+
+        for (int i = 0; i < maxLives; i++)
+        {
+            GameObject heart = Instantiate(heartPrefab, heartsContainer.transform);
+            _heartImages[i] = heart.GetComponent<Image>();
+            _heartImages[i].sprite = fullHeartSprite;
+        }
     }
 
     #region HUD Updates
 
     public void UpdateLivesDisplay(int lives)
     {
-        if (livesText != null)
-            livesText.text = "Lives: " + lives;
-        else
-            Debug.LogWarning("[UIManager] LivesText is not assigned!");
+        if (_heartImages == null)
+        {
+            Debug.LogWarning("[UIManager] Heart images not initialized!");
+            return;
+        }
+
+        for (int i = 0; i < _heartImages.Length; i++)
+        {
+            _heartImages[i].sprite = i < lives ? fullHeartSprite : emptyHeartSprite;
+        }
     }
 
     public void UpdateCoinsDisplay(int coins)
     {
         if (coinsText != null)
-            coinsText.text = "Coins: " + coins;
+            coinsText.text = "x " + coins;
         else
             Debug.LogWarning("[UIManager] CoinsText is not assigned!");
     }
@@ -58,21 +95,15 @@ public class UIManager : MonoBehaviour
     public void ShowPauseMenu()
     {
         if (pauseMenu)
-        {
             pauseMenu.SetActive(true);
-        }
         else
-        {
             Debug.LogWarning("[UIManager] PauseMenu is not assigned!");
-        }
     }
 
     public void HidePauseMenu()
     {
         if (pauseMenu)
-        {
             pauseMenu.SetActive(false);
-        }
     }
 
     #endregion
@@ -82,21 +113,15 @@ public class UIManager : MonoBehaviour
     public void ShowGameOverScreen()
     {
         if (gameOverScreen)
-        {
             gameOverScreen.SetActive(true);
-        }
         else
-        {
             Debug.LogWarning("[UIManager] GameOverScreen is not assigned!");
-        }
     }
 
     public void HideGameOverScreen()
     {
         if (gameOverScreen)
-        {
             gameOverScreen.SetActive(false);
-        }
     }
 
     #endregion
@@ -109,12 +134,9 @@ public class UIManager : MonoBehaviour
         {
             levelCompletionScreen.SetActive(true);
 
-            // Try to setup the level complete screen if it has the controller
             LevelCompleteScreenController controller = levelCompletionScreen.GetComponent<LevelCompleteScreenController>();
             if (controller != null)
-            {
                 controller.Setup(coinsCollected, coinsCollected);
-            }
         }
         else
         {
@@ -125,9 +147,7 @@ public class UIManager : MonoBehaviour
     public void HideLevelCompleteScreen()
     {
         if (levelCompletionScreen)
-        {
             levelCompletionScreen.SetActive(false);
-        }
     }
 
     #endregion

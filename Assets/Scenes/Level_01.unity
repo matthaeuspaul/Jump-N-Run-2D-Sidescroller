@@ -547,35 +547,15 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 5165895147217004493, guid: 0606a44f982bced40a649d983b1c65ed, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5165895147217004493, guid: 0606a44f982bced40a649d983b1c65ed, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5165895147217004493, guid: 0606a44f982bced40a649d983b1c65ed, type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5165895147217004493, guid: 0606a44f982bced40a649d983b1c65ed, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5165895147217004493, guid: 0606a44f982bced40a649d983b1c65ed, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5165895147217004493, guid: 0606a44f982bced40a649d983b1c65ed, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
+    - target: {fileID: 1131861065311074129, guid: 0606a44f982bced40a649d983b1c65ed, type: 3}
+      propertyPath: m_Spacing
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5819973457030045935, guid: 0606a44f982bced40a649d983b1c65ed, type: 3}
       propertyPath: m_Name
       value: GameManager
       objectReference: {fileID: 0}
-    - target: {fileID: 5819973457030045935, guid: 0606a44f982bced40a649d983b1c65ed, type: 3}
+    - target: {fileID: 6522699411411398636, guid: 0606a44f982bced40a649d983b1c65ed, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
