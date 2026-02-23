@@ -64,6 +64,42 @@ public class GameManager : MonoBehaviour
         _uiManager?.UpdateCoinsDisplay(_coinsCollected);
     }
 
+    // -------------------------------------------------------
+    // Save / Load State (aufgerufen vom LevelManager beim Continue)
+    // -------------------------------------------------------
+
+    /// <summary>
+    /// Setzt Lives und Coins aus einem geladenen SaveData.
+    /// Wird vom LevelManager beim Continue-Start aufgerufen.
+    /// </summary>
+    public void ApplySaveData(SaveData data)
+    {
+        _currentLives = data.lives;
+        _coinsCollected = data.coins;
+
+        _uiManager?.UpdateLivesDisplay(_currentLives);
+        _uiManager?.UpdateCoinsDisplay(_coinsCollected);
+
+        Debug.Log($"[GameManager] Save data applied → Lives: {_currentLives} | Coins: {_coinsCollected}");
+    }
+
+    /// <summary>
+    /// Baut ein aktuelles SaveData-Objekt aus dem laufenden Spielzustand.
+    /// </summary>
+    public SaveData BuildSaveData()
+    {
+        string currentScene = SceneManager.GetActiveScene().name;
+        Vector3 cp = _checkpointManager != null
+            ? _checkpointManager.GetLastCheckpointPosition()
+            : Vector3.zero;
+
+        return new SaveData(currentScene, _currentLives, _coinsCollected, cp.x, cp.y);
+    }
+
+    // -------------------------------------------------------
+    // Game Flow
+    // -------------------------------------------------------
+
     public void PauseGame()
     {
         _isPaused = true;
@@ -113,6 +149,10 @@ public class GameManager : MonoBehaviour
 
     private void GameOver()
     {
+        // Save löschen bei Game Over (kein Weitermachen mit 0 Leben)
+        if (SaveManager.Instance != null)
+            SaveManager.Instance.DeleteSave();
+
         Time.timeScale = 0f;
         _uiManager?.ShowGameOverScreen();
     }
@@ -124,15 +164,10 @@ public class GameManager : MonoBehaviour
 
     private System.Collections.IEnumerator RestartGameCoroutine()
     {
-        // Fade to black before loading
         if (_uiManager != null && _uiManager.Fader != null)
-        {
             yield return _uiManager.Fader.FadeOut(0.5f);
-        }
         else
-        {
             yield return new WaitForSecondsRealtime(0.5f);
-        }
 
         _uiManager?.HideGameOverScreen();
 
@@ -141,17 +176,25 @@ public class GameManager : MonoBehaviour
         _coinsCollected = 0;
         _checkpointManager?.ResetCheckpoints();
 
-        // ✅ FIX: HUD sofort nach Reset aktualisieren
         _uiManager?.UpdateLivesDisplay(_currentLives);
         _uiManager?.UpdateCoinsDisplay(_coinsCollected);
 
-        SceneManager.LoadScene("Level_01");
+        // New Game → kein Continue-Flag, Save bleibt gelöscht (schon in GameOver gelöscht)
+        if (SaveManager.Instance != null)
+            SaveManager.Instance.SetContinuing(false);
 
-        // Note: Fade-In passiert im LevelManager nach dem Player-Spawn
+        SceneManager.LoadScene("Level_01");
     }
 
     public void LevelComplete()
     {
+        // Spielstand beim Level-Abschluss sichern
+        if (SaveManager.Instance != null)
+        {
+            SaveData data = BuildSaveData();
+            SaveManager.Instance.Save(data);
+        }
+
         _uiManager?.ShowLevelCompleteScreen(_coinsCollected);
     }
 
@@ -162,37 +205,30 @@ public class GameManager : MonoBehaviour
 
     private System.Collections.IEnumerator LoadNextLevelCoroutine(string nextLevelScene)
     {
-        // Fade to black
         if (_uiManager != null && _uiManager.Fader != null)
-        {
             yield return _uiManager.Fader.FadeOut(0.5f);
-        }
         else
-        {
             yield return new WaitForSecondsRealtime(0.5f);
-        }
 
-        // Verstecke Level Completion Screen
         _uiManager?.HideLevelCompleteScreen();
 
-        // ✅ FIX: Coins für neues Level zurücksetzen und HUD aktualisieren
         _coinsCollected = 0;
         _uiManager?.UpdateCoinsDisplay(_coinsCollected);
 
-        // Kurze Pause auf schwarzem Bildschirm
         yield return new WaitForSecondsRealtime(0.3f);
 
-        // Lade nächstes Level oder Main Menu
         if (!string.IsNullOrEmpty(nextLevelScene))
         {
             SceneManager.LoadScene(nextLevelScene);
         }
         else
         {
+            // Letztes Level abgeschlossen → Save löschen und ins Main Menu
+            if (SaveManager.Instance != null)
+                SaveManager.Instance.DeleteSave();
+
             SceneManager.LoadScene("MainMenu");
         }
-
-        // Note: Fade-In passiert im LevelManager nach dem Player-Spawn
     }
 
     public void ReturnToMainMenu()
