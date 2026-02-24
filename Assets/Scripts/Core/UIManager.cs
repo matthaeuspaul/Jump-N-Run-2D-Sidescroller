@@ -13,12 +13,12 @@ public class UIManager : MonoBehaviour
 
     [Header("Coins UI")]
     [SerializeField] private TextMeshProUGUI coinsText;
-    // Das Coin-Sprite-Image ist fix im Canvas, nur der Text ändert sich
 
     [Header("Menus")]
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject gameOverScreen;
     [SerializeField] private GameObject levelCompletionScreen;
+    [SerializeField] private GameObject settingsPanel;
 
     [Header("Screen Transitions")]
     [SerializeField] private ScreenFade screenFader;
@@ -38,6 +38,7 @@ public class UIManager : MonoBehaviour
         if (pauseMenu) pauseMenu.SetActive(false);
         if (gameOverScreen) gameOverScreen.SetActive(false);
         if (levelCompletionScreen) levelCompletionScreen.SetActive(false);
+        if (settingsPanel) settingsPanel.SetActive(false);
 
         SpawnHearts();
     }
@@ -50,7 +51,6 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-        // Alte Herzen löschen falls vorhanden
         foreach (Transform child in heartsContainer.transform)
             Destroy(child.gameObject);
 
@@ -75,9 +75,7 @@ public class UIManager : MonoBehaviour
         }
 
         for (int i = 0; i < _heartImages.Length; i++)
-        {
             _heartImages[i].sprite = i < lives ? fullHeartSprite : emptyHeartSprite;
-        }
     }
 
     public void UpdateCoinsDisplay(int coins)
@@ -94,16 +92,45 @@ public class UIManager : MonoBehaviour
 
     public void ShowPauseMenu()
     {
-        if (pauseMenu)
-            pauseMenu.SetActive(true);
-        else
-            Debug.LogWarning("[UIManager] PauseMenu is not assigned!");
+        if (pauseMenu) pauseMenu.SetActive(true);
+        else Debug.LogWarning("[UIManager] PauseMenu is not assigned!");
     }
 
     public void HidePauseMenu()
     {
-        if (pauseMenu)
-            pauseMenu.SetActive(false);
+        if (pauseMenu) pauseMenu.SetActive(false);
+        if (settingsPanel) settingsPanel.SetActive(false);
+    }
+
+    #endregion
+
+    #region Settings Panel
+
+    public void ShowSettingsPanel()
+    {
+        if (settingsPanel == null)
+        {
+            Debug.LogWarning("[UIManager] SettingsPanel is not assigned!");
+            return;
+        }
+
+        if (pauseMenu) pauseMenu.SetActive(false);
+
+        SettingsMenuController ctrl = settingsPanel.GetComponent<SettingsMenuController>();
+        if (ctrl != null)
+            ctrl.Open(pauseMenu);
+        else
+            settingsPanel.SetActive(true);
+    }
+
+    public void HideSettingsPanel()
+    {
+        if (settingsPanel) settingsPanel.SetActive(false);
+    }
+
+    public bool IsSettingsPanelOpen()
+    {
+        return settingsPanel != null && settingsPanel.activeSelf;
     }
 
     #endregion
@@ -112,16 +139,13 @@ public class UIManager : MonoBehaviour
 
     public void ShowGameOverScreen()
     {
-        if (gameOverScreen)
-            gameOverScreen.SetActive(true);
-        else
-            Debug.LogWarning("[UIManager] GameOverScreen is not assigned!");
+        if (gameOverScreen) gameOverScreen.SetActive(true);
+        else Debug.LogWarning("[UIManager] GameOverScreen is not assigned!");
     }
 
     public void HideGameOverScreen()
     {
-        if (gameOverScreen)
-            gameOverScreen.SetActive(false);
+        if (gameOverScreen) gameOverScreen.SetActive(false);
     }
 
     #endregion
@@ -133,7 +157,6 @@ public class UIManager : MonoBehaviour
         if (levelCompletionScreen)
         {
             levelCompletionScreen.SetActive(true);
-
             LevelCompleteScreenController controller = levelCompletionScreen.GetComponent<LevelCompleteScreenController>();
             if (controller != null)
                 controller.Setup(coinsCollected, coinsCollected);
@@ -146,8 +169,7 @@ public class UIManager : MonoBehaviour
 
     public void HideLevelCompleteScreen()
     {
-        if (levelCompletionScreen)
-            levelCompletionScreen.SetActive(false);
+        if (levelCompletionScreen) levelCompletionScreen.SetActive(false);
     }
 
     #endregion

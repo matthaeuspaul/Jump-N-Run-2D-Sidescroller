@@ -14,8 +14,11 @@ public class MainMenuController : MonoBehaviour
     [Tooltip("Optional: Ein TextMeshPro-Text der den Speicherstand-Zeitstempel anzeigt")]
     [SerializeField] private TextMeshProUGUI saveInfoText;
 
+    // NEU: Settings-Panel direkt im MainMenu Canvas
     [Header("Settings")]
     [SerializeField] private string firstLevelScene = "Level_01";
+    [SerializeField] private GameObject mainMenuPanel;   // Das Haupt-Panel (mit den Buttons)
+    [SerializeField] private GameObject settingsPanel;   // Das Settings-Panel
 
     private void Start()
     {
@@ -25,10 +28,12 @@ public class MainMenuController : MonoBehaviour
         if (GameManager.Instance != null)
             Destroy(GameManager.Instance.gameObject);
 
-        // SaveManager muss existieren - falls nicht vorhanden, erstellen
         EnsureSaveManager();
-
         UpdateUI();
+
+        // Settings-Panel beim Start schließen
+        if (settingsPanel) settingsPanel.SetActive(false);
+        if (mainMenuPanel) mainMenuPanel.SetActive(true);
     }
 
     private void EnsureSaveManager()
@@ -45,11 +50,9 @@ public class MainMenuController : MonoBehaviour
     {
         bool hasSave = SaveManager.Instance != null && SaveManager.Instance.HasSave();
 
-        // Continue-Button nur aktiv wenn ein Spielstand vorhanden ist
         if (continueButton != null)
             continueButton.interactable = hasSave;
 
-        // Spielstand-Info anzeigen (z.B. "Zuletzt gespielt: 23.02.2026 14:32 – Level_02")
         if (saveInfoText != null)
         {
             if (hasSave)
@@ -66,7 +69,6 @@ public class MainMenuController : MonoBehaviour
             }
         }
 
-        // Focus auf den sinnvollsten Button setzen
         if (hasSave && continueButton != null)
             continueButton.Select();
         else if (newGameButton != null)
@@ -77,9 +79,6 @@ public class MainMenuController : MonoBehaviour
     // Button Events
     // -------------------------------------------------------
 
-    /// <summary>
-    /// Setzt das Continue-Flag und lädt die gespeicherte Scene.
-    /// </summary>
     public void ContinueGame()
     {
         if (SaveManager.Instance == null || !SaveManager.Instance.HasSave())
@@ -99,9 +98,6 @@ public class MainMenuController : MonoBehaviour
         SceneManager.LoadScene(data.sceneName);
     }
 
-    /// <summary>
-    /// Löscht den alten Spielstand und startet ein neues Spiel.
-    /// </summary>
     public void StartNewGame()
     {
         if (SaveManager.Instance != null)
@@ -113,7 +109,6 @@ public class MainMenuController : MonoBehaviour
     public void QuitGame()
     {
         Debug.Log("Quitting game...");
-
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
@@ -121,9 +116,22 @@ public class MainMenuController : MonoBehaviour
 #endif
     }
 
-    public void OpenOptions()
+    /// <summary>Öffnet das Settings-Panel und blendet das Hauptmenü aus.</summary>
+    public void OpenSettings()
     {
-        Debug.Log("Options menu not yet implemented");
+        if (settingsPanel == null)
+        {
+            Debug.LogWarning("[MainMenuController] SettingsPanel nicht zugewiesen!");
+            return;
+        }
+
+        if (mainMenuPanel) mainMenuPanel.SetActive(false);
+
+        SettingsMenuController ctrl = settingsPanel.GetComponent<SettingsMenuController>();
+        if (ctrl != null)
+            ctrl.Open(mainMenuPanel); // mainMenuPanel wird beim Close wieder eingeblendet
+        else
+            settingsPanel.SetActive(true);
     }
 
     public void OpenCredits()

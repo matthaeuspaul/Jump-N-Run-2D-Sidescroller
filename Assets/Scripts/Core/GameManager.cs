@@ -7,11 +7,10 @@ public class GameManager : MonoBehaviour
 
     [Header("Managers")]
     private UIManager _uiManager;
-    private AudioManager _audioManager;
     private CheckpointManager _checkpointManager;
 
     public UIManager UI => _uiManager;
-    public AudioManager Audio => _audioManager;
+    public AudioManager Audio => AudioManager.Instance;
     public CheckpointManager Checkpoints => _checkpointManager;
 
     [Header("Game State")]
@@ -37,7 +36,6 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         _uiManager = GetComponentInChildren<UIManager>();
-        _audioManager = GetComponentInChildren<AudioManager>();
         _checkpointManager = GetComponentInChildren<CheckpointManager>();
 
         InitializeManagers();
@@ -47,6 +45,14 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            // Settings hat Priorität – zuerst Settings schließen, dann erst PauseMenu
+            if (_uiManager != null && _uiManager.IsSettingsPanelOpen())
+            {
+                _uiManager.HideSettingsPanel();
+                _uiManager.ShowPauseMenu();
+                return;
+            }
+
             if (_isPaused)
                 ResumeGame();
             else
@@ -57,7 +63,6 @@ public class GameManager : MonoBehaviour
     private void InitializeManagers()
     {
         _uiManager?.Initialize();
-        _audioManager?.Initialize();
         _checkpointManager?.Initialize();
 
         _uiManager?.UpdateLivesDisplay(_currentLives);
@@ -65,13 +70,9 @@ public class GameManager : MonoBehaviour
     }
 
     // -------------------------------------------------------
-    // Save / Load State (aufgerufen vom LevelManager beim Continue)
+    // Save / Load State
     // -------------------------------------------------------
 
-    /// <summary>
-    /// Setzt Lives und Coins aus einem geladenen SaveData.
-    /// Wird vom LevelManager beim Continue-Start aufgerufen.
-    /// </summary>
     public void ApplySaveData(SaveData data)
     {
         _currentLives = data.lives;
@@ -83,9 +84,6 @@ public class GameManager : MonoBehaviour
         Debug.Log($"[GameManager] Save data applied → Lives: {_currentLives} | Coins: {_coinsCollected}");
     }
 
-    /// <summary>
-    /// Baut ein aktuelles SaveData-Objekt aus dem laufenden Spielzustand.
-    /// </summary>
     public SaveData BuildSaveData()
     {
         string currentScene = SceneManager.GetActiveScene().name;
@@ -120,13 +118,9 @@ public class GameManager : MonoBehaviour
         _uiManager?.UpdateLivesDisplay(_currentLives);
 
         if (_currentLives <= 0)
-        {
             GameOver();
-        }
         else
-        {
             RespawnPlayer();
-        }
     }
 
     private void RespawnPlayer()
@@ -149,7 +143,6 @@ public class GameManager : MonoBehaviour
 
     private void GameOver()
     {
-        // Save löschen bei Game Over (kein Weitermachen mit 0 Leben)
         if (SaveManager.Instance != null)
             SaveManager.Instance.DeleteSave();
 
@@ -179,7 +172,6 @@ public class GameManager : MonoBehaviour
         _uiManager?.UpdateLivesDisplay(_currentLives);
         _uiManager?.UpdateCoinsDisplay(_coinsCollected);
 
-        // New Game → kein Continue-Flag, Save bleibt gelöscht (schon in GameOver gelöscht)
         if (SaveManager.Instance != null)
             SaveManager.Instance.SetContinuing(false);
 
@@ -188,7 +180,6 @@ public class GameManager : MonoBehaviour
 
     public void LevelComplete()
     {
-        // Spielstand beim Level-Abschluss sichern
         if (SaveManager.Instance != null)
         {
             SaveData data = BuildSaveData();
@@ -223,7 +214,6 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            // Letztes Level abgeschlossen → Save löschen und ins Main Menu
             if (SaveManager.Instance != null)
                 SaveManager.Instance.DeleteSave();
 
