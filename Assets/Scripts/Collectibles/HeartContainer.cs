@@ -9,6 +9,7 @@ public class HeartContainer : MonoBehaviour
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.AddLife();
+                GameManager.Instance.Audio?.PlaySFX("LifePickup");
             }
 
             Destroy(gameObject);

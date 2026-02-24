@@ -9,6 +9,7 @@ public class Coin : MonoBehaviour
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.CollectCoin();
+                GameManager.Instance.Audio?.PlaySFX("CoinPickup");
             }
 
             Destroy(gameObject);
