@@ -200,7 +200,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 2
   stompBounceForce: 8
-  groundRayLength: 0.5
+  groundRayLength: 2
   groundLayer:
     serializedVersion: 2
     m_Bits: 64

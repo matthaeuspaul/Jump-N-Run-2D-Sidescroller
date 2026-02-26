@@ -101,7 +101,7 @@ public class Enemy1 : MonoBehaviour
 
         Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
 
-        bool isStompedFromAbove = collision.gameObject.transform.position.y > transform.position.y;
+        bool isStompedFromAbove = collision.contacts[0].normal.y < -0.5f;
 
         if (isStompedFromAbove)
         {

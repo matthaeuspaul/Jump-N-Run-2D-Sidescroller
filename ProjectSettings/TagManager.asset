@@ -16,8 +16,8 @@ TagManager:
   - Chain
   - Player
   - Enemy
-  - 
-  - 
+  - FlyingEnemy
+  - Bounds
   - 
   - 
   - 

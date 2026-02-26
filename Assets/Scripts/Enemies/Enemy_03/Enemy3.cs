@@ -62,7 +62,7 @@ public class Enemy3 : MonoBehaviour
         if (currentState == State.Dead) return;
         if (!collision.gameObject.CompareTag("Player")) return;
 
-        bool isStompedFromAbove = collision.gameObject.transform.position.y > transform.position.y;
+        bool isStompedFromAbove = collision.contacts[0].normal.y < -0.5f;
 
         if (isStompedFromAbove)
         {

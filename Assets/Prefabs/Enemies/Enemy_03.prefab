@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4835587094050360886}
   - component: {fileID: 798115688524026778}
   - component: {fileID: 6917930923887832013}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Enemy_03
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -199,7 +199,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
-  patrolDistance: 3
-  sinAmplitude: 0.5
-  sinFrequency: 2
+  patrolDistance: 6
+  sinAmplitude: 0.3
+  sinFrequency: 1
   stompBounceForce: 8

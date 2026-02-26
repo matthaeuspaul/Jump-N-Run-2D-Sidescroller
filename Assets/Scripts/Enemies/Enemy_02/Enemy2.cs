@@ -9,7 +9,7 @@ public class Enemy2 : MonoBehaviour
     [SerializeField] private float stompBounceForce = 8f;
 
     [Header("Raycasts")]
-    [SerializeField] private float groundRayLength = 1f;
+    [SerializeField] private float groundRayLength = 2f;
     [SerializeField] private LayerMask groundLayer;
 
     private enum State { Walk, Dead }
@@ -19,7 +19,7 @@ public class Enemy2 : MonoBehaviour
     private Animator animator;
 
     private float moveDirection = 1f;
-    private float flipCooldown = 0.5f;
+    private float flipCooldown = 0.2f;
     private float lastFlipTime;
 
     void Start()
@@ -36,9 +36,10 @@ public class Enemy2 : MonoBehaviour
 
     private void HandleWalk()
     {
-        if (Time.time > lastFlipTime + flipCooldown)
+        // Nach Abgrund ODER Wand prüfen
+        if (NoGroundAhead() || WallAhead())
         {
-            if (NoGroundAhead())
+            if (Time.time > lastFlipTime + flipCooldown)
             {
                 moveDirection *= -1f;
                 FlipSprite();
@@ -52,11 +53,27 @@ public class Enemy2 : MonoBehaviour
     private bool NoGroundAhead()
     {
         Vector2 rayOrigin = new Vector2(
-            transform.position.x + moveDirection * 0.4f,
-            transform.position.y - 0.4f
+            transform.position.x + moveDirection * 0.5f,
+            transform.position.y
         );
         RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, groundRayLength, groundLayer);
+
+        // Debug-Visualisierung (rot = Abgrund, grün = Boden)
+        Debug.DrawRay(rayOrigin, Vector2.down * groundRayLength, hit.collider ? Color.green : Color.red);
+
         return hit.collider == null;
+    }
+
+    private bool WallAhead()
+    {
+        Vector2 rayOrigin = transform.position;
+        Vector2 rayDirection = new Vector2(moveDirection, 0f);
+        RaycastHit2D hit = Physics2D.Raycast(rayOrigin, rayDirection, 0.6f, groundLayer);
+
+        // Debug-Visualisierung (cyan = kein Wand, blau = Wand erkannt)
+        Debug.DrawRay(rayOrigin, rayDirection * 0.6f, hit.collider ? Color.blue : Color.cyan);
+
+        return hit.collider != null;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -76,7 +93,7 @@ public class Enemy2 : MonoBehaviour
 
         if (!collision.gameObject.CompareTag("Player")) return;
 
-        bool isStompedFromAbove = collision.gameObject.transform.position.y > transform.position.y;
+        bool isStompedFromAbove = collision.contacts[0].normal.y < -0.5f;
 
         if (isStompedFromAbove)
         {
@@ -120,11 +137,17 @@ public class Enemy2 : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        // Boden-Raycast (gelb)
         Gizmos.color = Color.yellow;
         Vector2 rayOrigin = new Vector2(
-            transform.position.x + moveDirection * 0.4f,
-            transform.position.y - 0.4f
+            transform.position.x + moveDirection * 0.5f,
+            transform.position.y
         );
         Gizmos.DrawRay(rayOrigin, Vector2.down * groundRayLength);
+
+        // Wand-Raycast (blau)
+        Gizmos.color = Color.blue;
+        Vector2 wallRayOrigin = transform.position;
+        Gizmos.DrawRay(wallRayOrigin, new Vector2(moveDirection, 0f) * 0.6f);
     }
 }
