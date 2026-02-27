@@ -6248,6 +6248,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1658847931}
   m_SourcePrefab: {fileID: 100100000, guid: 9d094b39fcfdf104689725582198131b, type: 3}
+--- !u!4 &1311134113 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4846851182894946031, guid: 9d094b39fcfdf104689725582198131b, type: 3}
+  m_PrefabInstance: {fileID: 1311134112}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1392605228
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6505,7 +6510,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nextLevelScene: Level_02
-  playerSpawnPoint: {fileID: 0}
+  playerSpawnPoint: {fileID: 1311134113}
 --- !u!4 &1516702606
 Transform:
   m_ObjectHideFlags: 0
