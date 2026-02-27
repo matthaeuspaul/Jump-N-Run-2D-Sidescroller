@@ -8,30 +8,25 @@ public class MainMenuController : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private Button continueButton;
     [SerializeField] private Button newGameButton;
-    [SerializeField] private Button quitButton;
 
     [Header("Continue Info (Optional)")]
-    [Tooltip("Optional: Ein TextMeshPro-Text der den Speicherstand-Zeitstempel anzeigt")]
     [SerializeField] private TextMeshProUGUI saveInfoText;
 
-    // NEU: Settings-Panel direkt im MainMenu Canvas
     [Header("Settings")]
     [SerializeField] private string firstLevelScene = "Level_01";
-    [SerializeField] private GameObject mainMenuPanel;   // Das Haupt-Panel (mit den Buttons)
-    [SerializeField] private GameObject settingsPanel;   // Das Settings-Panel
+    [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private GameObject settingsPanel;
 
     private void Start()
     {
         Time.timeScale = 1f;
 
-        // Alten GameManager zerstören (DontDestroyOnLoad-Objekt aus vorherigem Spieldurchlauf)
         if (GameManager.Instance != null)
             Destroy(GameManager.Instance.gameObject);
 
         EnsureSaveManager();
         UpdateUI();
 
-        // Settings-Panel beim Start schließen
         if (settingsPanel) settingsPanel.SetActive(false);
         if (mainMenuPanel) mainMenuPanel.SetActive(true);
     }
@@ -39,11 +34,7 @@ public class MainMenuController : MonoBehaviour
     private void EnsureSaveManager()
     {
         if (SaveManager.Instance == null)
-        {
-            GameObject go = new GameObject("SaveManager");
-            go.AddComponent<SaveManager>();
-            Debug.Log("[MainMenuController] SaveManager wurde neu erstellt.");
-        }
+            new GameObject("SaveManager").AddComponent<SaveManager>();
     }
 
     private void UpdateUI()
@@ -58,10 +49,9 @@ public class MainMenuController : MonoBehaviour
             if (hasSave)
             {
                 SaveData data = SaveManager.Instance.Load();
-                if (data != null)
-                    saveInfoText.text = $"Letzter Speicherstand: {data.saveTime}  |  {data.sceneName}  |  ♥ {data.lives}";
-                else
-                    saveInfoText.text = "";
+                saveInfoText.text = data != null
+                    ? $"Letzter Speicherstand: {data.saveTime}  |  {data.sceneName}  |  ♥ {data.lives}"
+                    : "";
             }
             else
             {
@@ -75,24 +65,12 @@ public class MainMenuController : MonoBehaviour
             newGameButton.Select();
     }
 
-    // -------------------------------------------------------
-    // Button Events
-    // -------------------------------------------------------
-
     public void ContinueGame()
     {
-        if (SaveManager.Instance == null || !SaveManager.Instance.HasSave())
-        {
-            Debug.LogWarning("[MainMenuController] Kein Spielstand zum Fortsetzen gefunden!");
-            return;
-        }
+        if (SaveManager.Instance == null || !SaveManager.Instance.HasSave()) return;
 
         SaveData data = SaveManager.Instance.Load();
-        if (data == null || string.IsNullOrEmpty(data.sceneName))
-        {
-            Debug.LogError("[MainMenuController] Spielstand beschädigt oder leer!");
-            return;
-        }
+        if (data == null || string.IsNullOrEmpty(data.sceneName)) return;
 
         SaveManager.Instance.SetContinuing(true);
         SceneManager.LoadScene(data.sceneName);
@@ -100,15 +78,12 @@ public class MainMenuController : MonoBehaviour
 
     public void StartNewGame()
     {
-        if (SaveManager.Instance != null)
-            SaveManager.Instance.DeleteSave();
-
+        SaveManager.Instance?.DeleteSave();
         SceneManager.LoadScene(firstLevelScene);
     }
 
     public void QuitGame()
     {
-        Debug.Log("Quitting game...");
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
@@ -116,26 +91,18 @@ public class MainMenuController : MonoBehaviour
 #endif
     }
 
-    /// <summary>Öffnet das Settings-Panel und blendet das Hauptmenü aus.</summary>
     public void OpenSettings()
     {
-        if (settingsPanel == null)
-        {
-            Debug.LogWarning("[MainMenuController] SettingsPanel nicht zugewiesen!");
-            return;
-        }
+        if (settingsPanel == null) return;
 
         if (mainMenuPanel) mainMenuPanel.SetActive(false);
 
         SettingsMenuController ctrl = settingsPanel.GetComponent<SettingsMenuController>();
         if (ctrl != null)
-            ctrl.Open(mainMenuPanel); // mainMenuPanel wird beim Close wieder eingeblendet
+            ctrl.Open(mainMenuPanel);
         else
             settingsPanel.SetActive(true);
     }
 
-    public void OpenCredits()
-    {
-        Debug.Log("Credits not yet implemented");
-    }
+    public void OpenCredits() { }
 }

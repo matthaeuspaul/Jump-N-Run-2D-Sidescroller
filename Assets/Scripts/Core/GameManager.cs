@@ -5,7 +5,6 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    [Header("Managers")]
     private UIManager _uiManager;
     private CheckpointManager _checkpointManager;
 
@@ -46,7 +45,6 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            // Settings hat Priorität – zuerst Settings schließen, dann erst PauseMenu
             if (_uiManager != null && _uiManager.IsSettingsPanelOpen())
             {
                 _uiManager.HideSettingsPanel();
@@ -70,10 +68,6 @@ public class GameManager : MonoBehaviour
         _uiManager?.UpdateCoinsDisplay(_coinsCollected);
     }
 
-    // -------------------------------------------------------
-    // Save / Load State
-    // -------------------------------------------------------
-
     public void ApplySaveData(SaveData data)
     {
         _currentLives = data.lives;
@@ -81,8 +75,6 @@ public class GameManager : MonoBehaviour
 
         _uiManager?.UpdateLivesDisplay(_currentLives);
         _uiManager?.UpdateCoinsDisplay(_coinsCollected);
-
-        Debug.Log($"[GameManager] Save data applied → Lives: {_currentLives} | Coins: {_coinsCollected}");
     }
 
     public SaveData BuildSaveData()
@@ -94,10 +86,6 @@ public class GameManager : MonoBehaviour
 
         return new SaveData(currentScene, _currentLives, _coinsCollected, cp.x, cp.y);
     }
-
-    // -------------------------------------------------------
-    // Game Flow
-    // -------------------------------------------------------
 
     public void PauseGame()
     {
@@ -132,11 +120,7 @@ public class GameManager : MonoBehaviour
 
     public void AddLife()
     {
-        if (_currentLives >= _maxLives)
-        {
-            Debug.Log("[GameManager] AddLife ignored – already at max lives.");
-            return;
-        }
+        if (_currentLives >= _maxLives) return;
 
         _currentLives++;
         _uiManager?.UpdateLivesDisplay(_currentLives);
@@ -150,9 +134,7 @@ public class GameManager : MonoBehaviour
 
     private void GameOver()
     {
-        if (SaveManager.Instance != null)
-            SaveManager.Instance.DeleteSave();
-
+        SaveManager.Instance?.DeleteSave();
         Time.timeScale = 0f;
         _uiManager?.ShowGameOverScreen();
     }
@@ -164,7 +146,7 @@ public class GameManager : MonoBehaviour
 
     private System.Collections.IEnumerator RestartGameCoroutine()
     {
-        if (_uiManager != null && _uiManager.Fader != null)
+        if (_uiManager?.Fader != null)
             yield return _uiManager.Fader.FadeOut(0.5f);
         else
             yield return new WaitForSecondsRealtime(0.5f);
@@ -179,8 +161,7 @@ public class GameManager : MonoBehaviour
         _uiManager?.UpdateLivesDisplay(_currentLives);
         _uiManager?.UpdateCoinsDisplay(_coinsCollected);
 
-        if (SaveManager.Instance != null)
-            SaveManager.Instance.SetContinuing(false);
+        SaveManager.Instance?.SetContinuing(false);
 
         SceneManager.LoadScene("Level_01");
     }
@@ -188,10 +169,7 @@ public class GameManager : MonoBehaviour
     public void LevelComplete(string nextLevelScene, int totalCoins)
     {
         if (SaveManager.Instance != null)
-        {
-            SaveData data = BuildSaveData();
-            SaveManager.Instance.Save(data);
-        }
+            SaveManager.Instance.Save(BuildSaveData());
 
         Time.timeScale = 0f;
         _uiManager?.ShowLevelCompleteScreen(_coinsCollected, totalCoins, nextLevelScene);
@@ -204,7 +182,7 @@ public class GameManager : MonoBehaviour
 
     private System.Collections.IEnumerator LoadNextLevelCoroutine(string nextLevelScene)
     {
-        if (_uiManager != null && _uiManager.Fader != null)
+        if (_uiManager?.Fader != null)
             yield return _uiManager.Fader.FadeOut(0.5f);
         else
             yield return new WaitForSecondsRealtime(0.5f);
@@ -223,9 +201,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            if (SaveManager.Instance != null)
-                SaveManager.Instance.DeleteSave();
-
+            SaveManager.Instance?.DeleteSave();
             SceneManager.LoadScene("MainMenu");
         }
     }

@@ -4,17 +4,11 @@ public class GameOverScreenController : MonoBehaviour
 {
     public void RestartGame()
     {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.RestartGame(); // Geht automatisch zu Level_01
-        }
+        GameManager.Instance?.RestartGame();
     }
 
     public void ReturnToMainMenu()
     {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.ReturnToMainMenu();
-        }
+        GameManager.Instance?.ReturnToMainMenu();
     }
 }

@@ -13,20 +13,16 @@ public class LevelCompleteScreenController : MonoBehaviour
         _nextLevelScene = nextLevelScene;
 
         if (coinsText != null)
-        {
             coinsText.text = $"Coins: {coinsCollected}/{totalCoins}";
-        }
     }
 
     public void NextLevel()
     {
-        if (GameManager.Instance != null)
-            GameManager.Instance.LoadNextLevel(_nextLevelScene);
+        GameManager.Instance?.LoadNextLevel(_nextLevelScene);
     }
 
     public void ReturnToMainMenu()
     {
-        if (GameManager.Instance != null)
-            GameManager.Instance.ReturnToMainMenu();
+        GameManager.Instance?.ReturnToMainMenu();
     }
 }

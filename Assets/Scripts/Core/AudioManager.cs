@@ -9,12 +9,10 @@ public class AudioManager : MonoBehaviour
     [Header("Audio Mixer")]
     [SerializeField] private AudioMixer audioMixer;
 
-    // Exposed Parameter Namen im Audio Mixer (müssen exakt übereinstimmen!)
     private const string MASTER_PARAM = "MasterVolume";
     private const string MUSIC_PARAM = "MusicVolume";
     private const string SFX_PARAM = "SFXVolume";
 
-    // PlayerPrefs Keys
     private const string PREF_MASTER = "Vol_Master";
     private const string PREF_MUSIC = "Vol_Music";
     private const string PREF_SFX = "Vol_SFX";
@@ -30,10 +28,6 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip jump;
 
     private Dictionary<string, AudioClip> _sfxDictionary;
-
-    // -------------------------------------------------------
-    // Singleton & Lifecycle
-    // -------------------------------------------------------
 
     private void Awake()
     {
@@ -62,11 +56,6 @@ public class AudioManager : MonoBehaviour
         LoadAndApplyVolumes();
     }
 
-    // -------------------------------------------------------
-    // Volume – Public API (Werte 0.0001 – 1, von Sliders)
-    // -------------------------------------------------------
-
-    /// <summary>Wird vom SettingsMenuController via Slider aufgerufen (0–1).</summary>
     public void SetMasterVolume(float value)
     {
         ApplyVolume(MASTER_PARAM, value);
@@ -88,14 +77,9 @@ public class AudioManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    /// <summary>Gibt den gespeicherten Wert zurück (0–1) – Default 1.</summary>
     public float GetMasterVolume() => PlayerPrefs.GetFloat(PREF_MASTER, 1f);
     public float GetMusicVolume() => PlayerPrefs.GetFloat(PREF_MUSIC, 1f);
     public float GetSFXVolume() => PlayerPrefs.GetFloat(PREF_SFX, 1f);
-
-    // -------------------------------------------------------
-    // Internes
-    // -------------------------------------------------------
 
     private void LoadAndApplyVolumes()
     {
@@ -104,24 +88,17 @@ public class AudioManager : MonoBehaviour
         ApplyVolume(SFX_PARAM, GetSFXVolume());
     }
 
-    /// <summary>Konvertiert linearen Wert (0–1) in Dezibel und setzt den Mixer-Parameter.</summary>
     private void ApplyVolume(string parameter, float linearValue)
     {
         if (audioMixer == null)
         {
-            Debug.LogWarning("[AudioManager] Kein Audio Mixer zugewiesen!");
+            Debug.LogWarning("[AudioManager] No Audio Mixer assigned!");
             return;
         }
 
-        // Clamp verhindert log(0) → -Infinity
         float clamped = Mathf.Clamp(linearValue, 0.0001f, 1f);
-        float db = Mathf.Log10(clamped) * 20f;
-        audioMixer.SetFloat(parameter, db);
+        audioMixer.SetFloat(parameter, Mathf.Log10(clamped) * 20f);
     }
-
-    // -------------------------------------------------------
-    // SFX & Music Playback
-    // -------------------------------------------------------
 
     public void PlaySFX(string sfxName)
     {
@@ -132,7 +109,7 @@ public class AudioManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"[AudioManager] SFX '{sfxName}' nicht gefunden!");
+            Debug.LogWarning($"[AudioManager] SFX '{sfxName}' not found!");
         }
     }
 

@@ -26,8 +26,6 @@ public class Enemy3 : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         startPosition = transform.position;
-
-        // Gravity deaktivieren
         rb.gravityScale = 0f;
     }
 
@@ -41,14 +39,11 @@ public class Enemy3 : MonoBehaviour
     {
         sinTimer += Time.deltaTime;
 
-        // Horizontale Bewegung
         transform.position += new Vector3(moveDirection * moveSpeed * Time.deltaTime, 0, 0);
 
-        // Sinuskurve auf Y Achse
         float sinY = Mathf.Sin(sinTimer * sinFrequency) * sinAmplitude;
         transform.position = new Vector3(transform.position.x, startPosition.y + sinY, transform.position.z);
 
-        // Umdrehen wenn Distanz erreicht
         float distanceFromStart = transform.position.x - startPosition.x;
         if (Mathf.Abs(distanceFromStart) >= patrolDistance)
         {
@@ -74,8 +69,7 @@ public class Enemy3 : MonoBehaviour
         else
         {
             PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
-            if (playerHealth != null)
-                playerHealth.TakeDamage();
+            playerHealth?.TakeDamage();
         }
     }
 
@@ -89,9 +83,7 @@ public class Enemy3 : MonoBehaviour
     private float GetAnimationLength(string clipName)
     {
         foreach (AnimationClip clip in animator.runtimeAnimatorController.animationClips)
-        {
             if (clip.name == clipName) return clip.length;
-        }
         return 1f;
     }
 
@@ -106,13 +98,11 @@ public class Enemy3 : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        if (!Application.isPlaying) return;
         Gizmos.color = Color.cyan;
-        if (Application.isPlaying)
-        {
-            Gizmos.DrawLine(
-                new Vector3(startPosition.x - patrolDistance, startPosition.y, 0),
-                new Vector3(startPosition.x + patrolDistance, startPosition.y, 0)
-            );
-        }
+        Gizmos.DrawLine(
+            new Vector3(startPosition.x - patrolDistance, startPosition.y, 0),
+            new Vector3(startPosition.x + patrolDistance, startPosition.y, 0)
+        );
     }
 }

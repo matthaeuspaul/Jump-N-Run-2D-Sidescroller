@@ -7,20 +7,17 @@ public class ScreenFade : MonoBehaviour
     [Header("Fade Settings")]
     [SerializeField] private Image fadeImage;
     [SerializeField] private float fadeSpeed = 1f;
-    [SerializeField] private Color fadeColor = Color.black;
 
     private Coroutine currentFade;
 
     private void Awake()
     {
-        // Check if fade image is assigned
         if (fadeImage == null)
         {
-            Debug.LogError("[ScreenFade] Fade Image is not assigned! Please assign it in the Inspector.");
+            Debug.LogError("[ScreenFade] Fade Image is not assigned!");
             return;
         }
 
-        // Start with transparent (no fade)
         SetAlpha(0f);
         fadeImage.gameObject.SetActive(true);
     }
@@ -28,9 +25,7 @@ public class ScreenFade : MonoBehaviour
     public IEnumerator FadeOut(float duration = -1f)
     {
         if (duration < 0) duration = 1f / fadeSpeed;
-
-        if (currentFade != null)
-            StopCoroutine(currentFade);
+        if (currentFade != null) StopCoroutine(currentFade);
 
         fadeImage.gameObject.SetActive(true);
 
@@ -40,26 +35,19 @@ public class ScreenFade : MonoBehaviour
         while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
-            float alpha = Mathf.Clamp01(elapsed / duration);
-            color.a = alpha;
+            color.a = Mathf.Clamp01(elapsed / duration);
             fadeImage.color = color;
             yield return null;
         }
 
-        // Ensure fully faded
         color.a = 1f;
         fadeImage.color = color;
     }
 
-    /// <summary>
-    /// Fade from black (or fadeColor) to transparent
-    /// </summary>
     public IEnumerator FadeIn(float duration = -1f)
     {
         if (duration < 0) duration = 1f / fadeSpeed;
-
-        if (currentFade != null)
-            StopCoroutine(currentFade);
+        if (currentFade != null) StopCoroutine(currentFade);
 
         fadeImage.gameObject.SetActive(true);
 
@@ -69,13 +57,11 @@ public class ScreenFade : MonoBehaviour
         while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
-            float alpha = 1f - Mathf.Clamp01(elapsed / duration);
-            color.a = alpha;
+            color.a = 1f - Mathf.Clamp01(elapsed / duration);
             fadeImage.color = color;
             yield return null;
         }
 
-        // Ensure fully transparent
         color.a = 0f;
         fadeImage.color = color;
         fadeImage.gameObject.SetActive(false);
@@ -86,7 +72,6 @@ public class ScreenFade : MonoBehaviour
         Color color = fadeImage.color;
         color.a = Mathf.Clamp01(alpha);
         fadeImage.color = color;
-
         fadeImage.gameObject.SetActive(alpha > 0f);
     }
 

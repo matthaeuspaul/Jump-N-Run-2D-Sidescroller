@@ -8,14 +8,12 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private float blinkInterval = 0.1f;
 
     private AudioManager _audio;
-    private PlayerController _controller;
     private SpriteRenderer _spriteRenderer;
 
     private bool _isInvincible = false;
 
     private void Awake()
     {
-        _controller = GetComponent<PlayerController>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
@@ -38,27 +36,19 @@ public class PlayerHealth : MonoBehaviour
             GameManager.Instance.OnPlayerRespawn -= OnRespawn;
     }
 
-    /// <summary>
-    /// Called when player takes fatal damage (from Hazard.cs, enemies, etc.)
-    /// </summary>
     public void TakeDamage()
     {
-        if (_isInvincible)
-        {
-            Debug.Log("[PlayerHealth] Damage ignored – player is invincible.");
-            return;
-        }
+        if (_isInvincible) return;
 
-        Debug.Log("[PlayerHealth] Player took fatal damage!");
-
-        if (_audio != null)
-            _audio.PlaySFX("PlayerDeath");
+        _audio?.PlaySFX("PlayerDeath");
 
         if (GameManager.Instance != null)
             GameManager.Instance.PlayerDied();
         else
-            Debug.LogError("[PlayerHealth] GameManager.Instance is null! Cannot notify death.");
+            Debug.LogError("[PlayerHealth] GameManager.Instance is null!");
     }
+
+    public void TakeDamage(int amount) => TakeDamage();
 
     private void OnRespawn(Vector3 position)
     {
@@ -80,13 +70,5 @@ public class PlayerHealth : MonoBehaviour
 
         _spriteRenderer.enabled = true;
         _isInvincible = false;
-    }
-
-    /// <summary>
-    /// Optional: For future health system expansion
-    /// </summary>
-    public void TakeDamage(int amount)
-    {
-        TakeDamage();
     }
 }

@@ -36,7 +36,6 @@ public class Enemy2 : MonoBehaviour
 
     private void HandleWalk()
     {
-        // Nach Abgrund ODER Wand prüfen
         if (NoGroundAhead() || WallAhead())
         {
             if (Time.time > lastFlipTime + flipCooldown)
@@ -57,10 +56,7 @@ public class Enemy2 : MonoBehaviour
             transform.position.y
         );
         RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, groundRayLength, groundLayer);
-
-        // Debug-Visualisierung (rot = Abgrund, grün = Boden)
         Debug.DrawRay(rayOrigin, Vector2.down * groundRayLength, hit.collider ? Color.green : Color.red);
-
         return hit.collider == null;
     }
 
@@ -69,10 +65,7 @@ public class Enemy2 : MonoBehaviour
         Vector2 rayOrigin = transform.position;
         Vector2 rayDirection = new Vector2(moveDirection, 0f);
         RaycastHit2D hit = Physics2D.Raycast(rayOrigin, rayDirection, 0.6f, groundLayer);
-
-        // Debug-Visualisierung (cyan = kein Wand, blau = Wand erkannt)
         Debug.DrawRay(rayOrigin, rayDirection * 0.6f, hit.collider ? Color.blue : Color.cyan);
-
         return hit.collider != null;
     }
 
@@ -105,8 +98,7 @@ public class Enemy2 : MonoBehaviour
         else
         {
             PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
-            if (playerHealth != null)
-                playerHealth.TakeDamage();
+            playerHealth?.TakeDamage();
         }
     }
 
@@ -120,9 +112,7 @@ public class Enemy2 : MonoBehaviour
     private float GetAnimationLength(string clipName)
     {
         foreach (AnimationClip clip in animator.runtimeAnimatorController.animationClips)
-        {
             if (clip.name == clipName) return clip.length;
-        }
         return 1f;
     }
 
@@ -137,17 +127,11 @@ public class Enemy2 : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        // Boden-Raycast (gelb)
         Gizmos.color = Color.yellow;
-        Vector2 rayOrigin = new Vector2(
-            transform.position.x + moveDirection * 0.5f,
-            transform.position.y
-        );
+        Vector2 rayOrigin = new Vector2(transform.position.x + moveDirection * 0.5f, transform.position.y);
         Gizmos.DrawRay(rayOrigin, Vector2.down * groundRayLength);
 
-        // Wand-Raycast (blau)
         Gizmos.color = Color.blue;
-        Vector2 wallRayOrigin = transform.position;
-        Gizmos.DrawRay(wallRayOrigin, new Vector2(moveDirection, 0f) * 0.6f);
+        Gizmos.DrawRay(transform.position, new Vector2(moveDirection, 0f) * 0.6f);
     }
 }

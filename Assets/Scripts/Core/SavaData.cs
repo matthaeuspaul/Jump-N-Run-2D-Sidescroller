@@ -8,7 +8,7 @@ public class SaveData
     public int coins;
     public float checkpointX;
     public float checkpointY;
-    public string saveTime; // Lesbar für das Main Menu z.B. "23.02.2026 14:32"
+    public string saveTime;
 
     public SaveData() { }
 

@@ -32,15 +32,9 @@ public class Enemy1 : MonoBehaviour
     {
         switch (currentState)
         {
-            case State.Idle:
-                HandleIdle();
-                break;
-            case State.Alert:
-                HandleAlert();
-                break;
-            case State.Walk:
-                HandleWalk();
-                break;
+            case State.Idle: HandleIdle(); break;
+            case State.Alert: HandleAlert(); break;
+            case State.Walk: HandleWalk(); break;
         }
     }
 
@@ -99,12 +93,11 @@ public class Enemy1 : MonoBehaviour
         if (currentState == State.Dead) return;
         if (!collision.gameObject.CompareTag("Player")) return;
 
-        Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
-
         bool isStompedFromAbove = collision.contacts[0].normal.y < -0.5f;
 
         if (isStompedFromAbove)
         {
+            Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
             if (playerRb != null)
                 playerRb.linearVelocity = new Vector2(playerRb.linearVelocity.x, stompBounceForce);
             Die();
@@ -112,8 +105,7 @@ public class Enemy1 : MonoBehaviour
         else
         {
             PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
-            if (playerHealth != null)
-                playerHealth.TakeDamage();
+            playerHealth?.TakeDamage();
         }
     }
 
@@ -132,9 +124,7 @@ public class Enemy1 : MonoBehaviour
     private float GetAnimationLength(string clipName)
     {
         foreach (AnimationClip clip in animator.runtimeAnimatorController.animationClips)
-        {
             if (clip.name == clipName) return clip.length;
-        }
         return 1f;
     }
 

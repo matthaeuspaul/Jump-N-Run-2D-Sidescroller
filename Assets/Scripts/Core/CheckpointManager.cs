@@ -20,14 +20,9 @@ public class CheckpointManager : MonoBehaviour
     public void RegisterCheckpoint(Vector3 position)
     {
         _lastCheckpointPosition = position;
-        Debug.Log($"[CheckpointManager] Checkpoint registered at {position}");
 
-        // Spielstand bei jedem Checkpoint autom. speichern
         if (SaveManager.Instance != null && GameManager.Instance != null)
-        {
-            SaveData data = GameManager.Instance.BuildSaveData();
-            SaveManager.Instance.Save(data);
-        }
+            SaveManager.Instance.Save(GameManager.Instance.BuildSaveData());
     }
 
     public Vector3 GetLastCheckpointPosition()
@@ -40,12 +35,8 @@ public class CheckpointManager : MonoBehaviour
         _lastCheckpointPosition = _initialSpawnPosition;
     }
 
-    /// <summary>
-    /// Setzt die Checkpoint-Position direkt aus einem geladenen Save (für Continue).
-    /// </summary>
     public void SetCheckpointFromSave(float x, float y)
     {
         _lastCheckpointPosition = new Vector3(x, y, 0f);
-        Debug.Log($"[CheckpointManager] Checkpoint restored from save: {_lastCheckpointPosition}");
     }
 }
