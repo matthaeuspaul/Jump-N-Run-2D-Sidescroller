@@ -66,6 +66,9 @@ public class GameManager : MonoBehaviour
 
         _uiManager?.UpdateLivesDisplay(_currentLives);
         _uiManager?.UpdateCoinsDisplay(_coinsCollected);
+
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     public void ApplySaveData(SaveData data)
@@ -91,6 +94,8 @@ public class GameManager : MonoBehaviour
     {
         _isPaused = true;
         Time.timeScale = 0f;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
         _uiManager?.ShowPauseMenu();
     }
 
@@ -99,6 +104,14 @@ public class GameManager : MonoBehaviour
         _isPaused = false;
         Time.timeScale = 1f;
         _uiManager?.HidePauseMenu();
+        StartCoroutine(LockCursorNextFrame());
+    }
+
+    private System.Collections.IEnumerator LockCursorNextFrame()
+    {
+        yield return null;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     public void PlayerDied()
@@ -136,6 +149,8 @@ public class GameManager : MonoBehaviour
     {
         SaveManager.Instance?.DeleteSave();
         Time.timeScale = 0f;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
         _uiManager?.ShowGameOverScreen();
     }
 
@@ -154,6 +169,8 @@ public class GameManager : MonoBehaviour
         _uiManager?.HideGameOverScreen();
 
         Time.timeScale = 1f;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
         _currentLives = _maxLives;
         _coinsCollected = 0;
         _checkpointManager?.ResetCheckpoints();
@@ -172,6 +189,8 @@ public class GameManager : MonoBehaviour
             SaveManager.Instance.Save(BuildSaveData());
 
         Time.timeScale = 0f;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
         _uiManager?.ShowLevelCompleteScreen(_coinsCollected, totalCoins, nextLevelScene);
     }
 
@@ -190,6 +209,8 @@ public class GameManager : MonoBehaviour
         _uiManager?.HideLevelCompleteScreen();
 
         Time.timeScale = 1f;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
         _coinsCollected = 0;
         _uiManager?.UpdateCoinsDisplay(_coinsCollected);
 

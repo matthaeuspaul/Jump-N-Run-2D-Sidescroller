@@ -1625,7 +1625,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   continueButton: {fileID: 755237362}
   newGameButton: {fileID: 1487236231}
-  quitButton: {fileID: 971491644}
   saveInfoText: {fileID: 0}
   firstLevelScene: Level_01
   mainMenuPanel: {fileID: 685246951}

@@ -20,6 +20,8 @@ public class MainMenuController : MonoBehaviour
     private void Start()
     {
         Time.timeScale = 1f;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
 
         if (GameManager.Instance != null)
             Destroy(GameManager.Instance.gameObject);
