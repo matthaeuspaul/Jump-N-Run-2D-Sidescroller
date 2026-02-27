@@ -11,6 +11,8 @@ public class PlayerHealth : MonoBehaviour
     private PlayerController _controller;
     private SpriteRenderer _spriteRenderer;
 
+    private bool _isInvincible = false;
+
     private void Awake()
     {
         _controller = GetComponent<PlayerController>();
@@ -41,10 +43,13 @@ public class PlayerHealth : MonoBehaviour
     /// </summary>
     public void TakeDamage()
     {
-        Debug.Log("[PlayerHealth] Player took fatal damage!");
+        if (_isInvincible)
+        {
+            Debug.Log("[PlayerHealth] Damage ignored – player is invincible.");
+            return;
+        }
 
-        if (_controller != null)
-            _controller.enabled = false;
+        Debug.Log("[PlayerHealth] Player took fatal damage!");
 
         if (_audio != null)
             _audio.PlaySFX("PlayerDeath");
@@ -53,14 +58,6 @@ public class PlayerHealth : MonoBehaviour
             GameManager.Instance.PlayerDied();
         else
             Debug.LogError("[PlayerHealth] GameManager.Instance is null! Cannot notify death.");
-
-        Invoke(nameof(ReEnableController), 0.1f);
-    }
-
-    private void ReEnableController()
-    {
-        if (_controller != null)
-            _controller.enabled = true;
     }
 
     private void OnRespawn(Vector3 position)
@@ -71,6 +68,7 @@ public class PlayerHealth : MonoBehaviour
 
     private IEnumerator BlinkCoroutine()
     {
+        _isInvincible = true;
         float timer = 0f;
 
         while (timer < blinkDuration)
@@ -81,6 +79,7 @@ public class PlayerHealth : MonoBehaviour
         }
 
         _spriteRenderer.enabled = true;
+        _isInvincible = false;
     }
 
     /// <summary>

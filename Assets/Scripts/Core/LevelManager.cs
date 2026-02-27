@@ -6,6 +6,7 @@ public class LevelManager : MonoBehaviour
 {
     [Header("Level Settings")]
     [SerializeField] private string nextLevelScene = "";
+    [SerializeField] private int totalCoins = 3;
     [SerializeField] private Transform playerSpawnPoint;
 
     private void Start()
@@ -83,7 +84,6 @@ public class LevelManager : MonoBehaviour
 
     public void LevelComplete()
     {
-        GameManager.Instance.LevelComplete();
-        GameManager.Instance.LoadNextLevel(nextLevelScene);
+        GameManager.Instance.LevelComplete(nextLevelScene, totalCoins);
     }
 }

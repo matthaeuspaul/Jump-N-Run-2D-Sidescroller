@@ -152,14 +152,14 @@ public class UIManager : MonoBehaviour
 
     #region Level Complete Screen
 
-    public void ShowLevelCompleteScreen(int coinsCollected)
+    public void ShowLevelCompleteScreen(int coinsCollected, int totalCoins, string nextLevelScene)
     {
         if (levelCompletionScreen)
         {
             levelCompletionScreen.SetActive(true);
             LevelCompleteScreenController controller = levelCompletionScreen.GetComponent<LevelCompleteScreenController>();
             if (controller != null)
-                controller.Setup(coinsCollected, coinsCollected);
+                controller.Setup(coinsCollected, totalCoins, nextLevelScene);
         }
         else
         {

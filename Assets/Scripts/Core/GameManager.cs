@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     public CheckpointManager Checkpoints => _checkpointManager;
 
     [Header("Game State")]
+    [SerializeField] private int _maxLives = 3;
     private int _currentLives = 3;
     private int _coinsCollected = 0;
     private bool _isPaused = false;
@@ -131,6 +132,12 @@ public class GameManager : MonoBehaviour
 
     public void AddLife()
     {
+        if (_currentLives >= _maxLives)
+        {
+            Debug.Log("[GameManager] AddLife ignored – already at max lives.");
+            return;
+        }
+
         _currentLives++;
         _uiManager?.UpdateLivesDisplay(_currentLives);
     }
@@ -165,7 +172,7 @@ public class GameManager : MonoBehaviour
         _uiManager?.HideGameOverScreen();
 
         Time.timeScale = 1f;
-        _currentLives = 3;
+        _currentLives = _maxLives;
         _coinsCollected = 0;
         _checkpointManager?.ResetCheckpoints();
 
@@ -178,7 +185,7 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("Level_01");
     }
 
-    public void LevelComplete()
+    public void LevelComplete(string nextLevelScene, int totalCoins)
     {
         if (SaveManager.Instance != null)
         {
@@ -186,7 +193,8 @@ public class GameManager : MonoBehaviour
             SaveManager.Instance.Save(data);
         }
 
-        _uiManager?.ShowLevelCompleteScreen(_coinsCollected);
+        Time.timeScale = 0f;
+        _uiManager?.ShowLevelCompleteScreen(_coinsCollected, totalCoins, nextLevelScene);
     }
 
     public void LoadNextLevel(string nextLevelScene)
@@ -203,6 +211,7 @@ public class GameManager : MonoBehaviour
 
         _uiManager?.HideLevelCompleteScreen();
 
+        Time.timeScale = 1f;
         _coinsCollected = 0;
         _uiManager?.UpdateCoinsDisplay(_coinsCollected);
 

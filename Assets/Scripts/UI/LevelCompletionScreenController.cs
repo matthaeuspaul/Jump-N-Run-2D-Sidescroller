@@ -6,8 +6,12 @@ public class LevelCompleteScreenController : MonoBehaviour
     [Header("UI Elements")]
     [SerializeField] private TextMeshProUGUI coinsText;
 
-    public void Setup(int coinsCollected, int totalCoins)
+    private string _nextLevelScene;
+
+    public void Setup(int coinsCollected, int totalCoins, string nextLevelScene)
     {
+        _nextLevelScene = nextLevelScene;
+
         if (coinsText != null)
         {
             coinsText.text = $"Coins: {coinsCollected}/{totalCoins}";
@@ -16,15 +20,13 @@ public class LevelCompleteScreenController : MonoBehaviour
 
     public void NextLevel()
     {
-        // LevelManager handled das Level-Laden automatisch
-        // Dieser Button ist optional, Level wechselt auch automatisch nach 2 Sekunden
+        if (GameManager.Instance != null)
+            GameManager.Instance.LoadNextLevel(_nextLevelScene);
     }
 
     public void ReturnToMainMenu()
     {
         if (GameManager.Instance != null)
-        {
             GameManager.Instance.ReturnToMainMenu();
-        }
     }
 }
